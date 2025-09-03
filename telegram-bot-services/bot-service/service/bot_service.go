@@ -73,16 +73,17 @@ func NewBotService() BotService {
 // @param config 机器人配置
 // @return error 错误信息
 func (b *botServiceImpl) InitBot(config BotConfig) error {
-    bot, err := telebot.NewBot(telebot.Settings{
-        Token: config.Token,
-        Poller: &telebot.Webhook{
-            Listen:   ":8081",
-            Endpoint: &telebot.WebhookEndpoint{PublicURL: config.WebhookURL},
-        },
-    })
-    if err != nil {
-        return fmt.Errorf("failed to init bot %s: %v", config.Token, err)
-    }
+	bot, err := telebot.NewBot(telebot.Settings{
+		Token:  config.Token,
+		URL:    "http://127.0.0.1:8082",
+		Poller: &telebot.Webhook{
+			Listen:   ":8081",
+			Endpoint: &telebot.WebhookEndpoint{PublicURL: config.WebhookURL},
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("failed to init bot %s: %v", config.Token, err)
+	}
 
     webhook := &telebot.Webhook{Endpoint: &telebot.WebhookEndpoint{PublicURL: config.WebhookURL}}
     if err := bot.SetWebhook(webhook); err != nil {

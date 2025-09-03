@@ -106,8 +106,7 @@ func main() {
     
     // 机器人配置
     botConfigs := []service.BotConfig{
-        {Token: "YOUR_BOT_TOKEN_1", WebhookURL: "https://your-bot-service.com/webhook/YOUR_BOT_TOKEN_1"},
-        {Token: "YOUR_BOT_TOKEN_2", WebhookURL: "https://your-bot-service.com/webhook/YOUR_BOT_TOKEN_2"},
+        {Token: "8174016634:AAE6uDvC3TeWCYYjjZPEeDB7cM3v90w-mEc", WebhookURL: "http://localhost:8081/webhook/8174016634:AAE6uDvC3TeWCYYjjZPEeDB7cM3v90w-mEc"},
     }
     
     // 初始化机器人
@@ -119,7 +118,7 @@ func main() {
 
     // 启动服务器
     log.Println("Bot Service running on :8081")
-    err := http.ListenAndServeTLS(":8081", "cert.pem", "key.pem", r)
+    err := http.ListenAndServe(":8081", r)
     if err != nil {
         log.Fatal("Failed to start server: ", err)
     }
