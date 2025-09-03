@@ -1,0 +1,203 @@
+<svg width="1200" height="900" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="1200" height="900" fill="#f8f9fa"/>
+  
+  <!-- 页面头部 -->
+  <rect x="0" y="0" width="1200" height="60" fill="#ffffff" stroke="#e9ecef" stroke-width="1"/>
+  
+  <!-- Logo -->
+  <circle cx="40" cy="30" r="15" fill="#007bff"/>
+  <text x="70" y="35" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#333">Telegram Search</text>
+  
+  <!-- 导航菜单 -->
+  <text x="250" y="35" font-family="Arial, sans-serif" font-size="14" fill="#666">搜索</text>
+  <text x="300" y="35" font-family="Arial, sans-serif" font-size="14" fill="#007bff" font-weight="bold">机器人管理</text>
+  <text x="380" y="35" font-family="Arial, sans-serif" font-size="14" fill="#666">帮助</text>
+  
+  <!-- 面包屑导航 -->
+  <text x="500" y="35" font-family="Arial, sans-serif" font-size="12" fill="#666">机器人管理 > 克隆机器人</text>
+  
+  <!-- 用户菜单 -->
+  <circle cx="1150" cy="30" r="20" fill="#6c757d"/>
+  <text x="1145" y="35" font-family="Arial, sans-serif" font-size="12" fill="white">U</text>
+  
+  <!-- 主标题 -->
+  <text x="40" y="100" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#333">克隆机器人</text>
+  <text x="40" y="125" font-family="Arial, sans-serif" font-size="14" fill="#666">复制现有机器人配置，快速创建新的机器人实例</text>
+  
+  <!-- 步骤指示器 -->
+  <rect x="40" y="140" width="1120" height="60" fill="#ffffff" stroke="#e9ecef" stroke-width="1" rx="8"/>
+  
+  <!-- 步骤1 -->
+  <circle cx="100" cy="170" r="20" fill="#007bff"/>
+  <text x="95" y="175" font-family="Arial, sans-serif" font-size="12" fill="white" font-weight="bold">1</text>
+  <text x="70" y="190" font-family="Arial, sans-serif" font-size="12" fill="#007bff" font-weight="bold">选择源机器人</text>
+  
+  <!-- 连接线 -->
+  <line x1="120" y1="170" x2="180" y2="170" stroke="#007bff" stroke-width="2"/>
+  
+  <!-- 步骤2 -->
+  <circle cx="200" cy="170" r="20" fill="#6c757d"/>
+  <text x="195" y="175" font-family="Arial, sans-serif" font-size="12" fill="white" font-weight="bold">2</text>
+  <text x="170" y="190" font-family="Arial, sans-serif" font-size="12" fill="#6c757d">配置克隆选项</text>
+  
+  <!-- 连接线 -->
+  <line x1="220" y1="170" x2="280" y2="170" stroke="#e9ecef" stroke-width="2"/>
+  
+  <!-- 步骤3 -->
+  <circle cx="300" cy="170" r="20" fill="#e9ecef"/>
+  <text x="295" y="175" font-family="Arial, sans-serif" font-size="12" fill="#6c757d" font-weight="bold">3</text>
+  <text x="275" y="190" font-family="Arial, sans-serif" font-size="12" fill="#6c757d">确认并部署</text>
+  
+  <!-- 主内容区域 -->
+  <rect x="40" y="220" width="1120" height="600" fill="#ffffff" stroke="#e9ecef" stroke-width="1" rx="8"/>
+  
+  <!-- 左侧：源机器人选择 -->
+  <rect x="60" y="240" width="540" height="560" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="4"/>
+  
+  <text x="80" y="265" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#333">选择要克隆的机器人</text>
+  
+  <!-- 搜索框 -->
+  <rect x="80" y="280" width="500" height="35" fill="#ffffff" stroke="#ced4da" stroke-width="1" rx="4"/>
+  <text x="95" y="300" font-family="Arial, sans-serif" font-size="12" fill="#6c757d">搜索机器人名称...</text>
+  <rect x="540" y="285" width="30" height="25" fill="#007bff" rx="2"/>
+  <text x="550" y="300" font-family="Arial, sans-serif" font-size="12" fill="white">🔍</text>
+  
+  <!-- 机器人列表 -->
+  <text x="80" y="340" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">可用机器人列表</text>
+  
+  <!-- 机器人卡片1 - 选中状态 -->
+  <rect x="80" y="350" width="500" height="80" fill="#e3f2fd" stroke="#007bff" stroke-width="2" rx="4"/>
+  <circle cx="110" cy="375" r="8" fill="#28a745"/>
+  <text x="130" y="370" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">搜索机器人 #1</text>
+  <text x="130" y="385" font-family="Arial, sans-serif" font-size="11" fill="#666">创建时间: 2025-01-20</text>
+  <text x="130" y="400" font-family="Arial, sans-serif" font-size="11" fill="#666">处理消息: 1,500条 | 运行时间: 2天5小时</text>
+  <text x="130" y="415" font-family="Arial, sans-serif" font-size="11" fill="#28a745">状态: 运行中</text>
+  
+  <!-- 选中标记 -->
+  <circle cx="550" cy="390" r="12" fill="#007bff"/>
+  <text x="546" y="395" font-family="Arial, sans-serif" font-size="10" fill="white">✓</text>
+  
+  <!-- 机器人卡片2 -->
+  <rect x="80" y="440" width="500" height="80" fill="#ffffff" stroke="#e9ecef" stroke-width="1" rx="4"/>
+  <circle cx="110" cy="465" r="8" fill="#28a745"/>
+  <text x="130" y="460" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">搜索机器人 #2</text>
+  <text x="130" y="475" font-family="Arial, sans-serif" font-size="11" fill="#666">创建时间: 2025-01-19</text>
+  <text x="130" y="490" font-family="Arial, sans-serif" font-size="11" fill="#666">处理消息: 890条 | 运行时间: 1天12小时</text>
+  <text x="130" y="505" font-family="Arial, sans-serif" font-size="11" fill="#28a745">状态: 运行中</text>
+  
+  <!-- 机器人卡片3 -->
+  <rect x="80" y="530" width="500" height="80" fill="#ffffff" stroke="#e9ecef" stroke-width="1" rx="4"/>
+  <circle cx="110" cy="555" r="8" fill="#ffc107"/>
+  <text x="130" y="550" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">搜索机器人 #3</text>
+  <text x="130" y="565" font-family="Arial, sans-serif" font-size="11" fill="#666">创建时间: 2025-01-22</text>
+  <text x="130" y="580" font-family="Arial, sans-serif" font-size="11" fill="#666">处理消息: 45条 | 运行时间: 3小时</text>
+  <text x="130" y="595" font-family="Arial, sans-serif" font-size="11" fill="#ffc107">状态: 启动中</text>
+  
+  <!-- 机器人详情预览 -->
+  <text x="80" y="635" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">机器人详情预览</text>
+  
+  <rect x="80" y="645" width="500" height="140" fill="#ffffff" stroke="#e9ecef" stroke-width="1" rx="4"/>
+  
+  <!-- 详情内容 -->
+  <text x="100" y="665" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">搜索机器人 #1 配置信息</text>
+  
+  <text x="100" y="685" font-family="Arial, sans-serif" font-size="11" fill="#666">• 搜索配置: 启用全文搜索、模糊匹配</text>
+  <text x="100" y="700" font-family="Arial, sans-serif" font-size="11" fill="#666">• 过滤规则: 时间过滤、来源过滤、内容类型过滤</text>
+  <text x="100" y="715" font-family="Arial, sans-serif" font-size="11" fill="#666">• 响应模板: 标准搜索结果模板、错误提示模板</text>
+  <text x="100" y="730" font-family="Arial, sans-serif" font-size="11" fill="#666">• 权限设置: 公开访问、管理员权限</text>
+  <text x="100" y="745" font-family="Arial, sans-serif" font-size="11" fill="#666">• 数据源: 连接3个Telegram群组、2个频道</text>
+  <text x="100" y="760" font-family="Arial, sans-serif" font-size="11" fill="#666">• 性能配置: CPU 1核、内存 512MB、存储 2GB</text>
+  
+  <!-- 右侧：克隆配置选项 -->
+  <rect x="620" y="240" width="540" height="560" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="4"/>
+  
+  <text x="640" y="265" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#333">克隆配置选项</text>
+  
+  <!-- 基本信息 -->
+  <text x="640" y="290" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">基本信息</text>
+  
+  <text x="640" y="310" font-family="Arial, sans-serif" font-size="12" fill="#666">新机器人名称</text>
+  <rect x="640" y="315" width="500" height="30" fill="#ffffff" stroke="#ced4da" stroke-width="1" rx="4"/>
+  <text x="650" y="333" font-family="Arial, sans-serif" font-size="12" fill="#333">搜索机器人 #1 - 副本</text>
+  
+  <text x="640" y="360" font-family="Arial, sans-serif" font-size="12" fill="#666">描述信息</text>
+  <rect x="640" y="365" width="500" height="50" fill="#ffffff" stroke="#ced4da" stroke-width="1" rx="4"/>
+  <text x="650" y="383" font-family="Arial, sans-serif" font-size="12" fill="#333">基于搜索机器人 #1 克隆的新实例</text>
+  
+  <!-- 克隆选项 -->
+  <text x="640" y="440" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">克隆选项</text>
+  
+  <!-- 复选框组 -->
+  <rect x="640" y="450" width="15" height="15" fill="#007bff" stroke="#007bff" stroke-width="1" rx="2"/>
+  <text x="650" y="460" font-family="Arial, sans-serif" font-size="10" fill="white">✓</text>
+  <text x="665" y="462" font-family="Arial, sans-serif" font-size="12" fill="#333">搜索配置 (搜索算法、匹配规则)</text>
+  
+  <rect x="640" y="475" width="15" height="15" fill="#007bff" stroke="#007bff" stroke-width="1" rx="2"/>
+  <text x="650" y="485" font-family="Arial, sans-serif" font-size="10" fill="white">✓</text>
+  <text x="665" y="487" font-family="Arial, sans-serif" font-size="12" fill="#333">过滤规则 (时间、来源、类型过滤器)</text>
+  
+  <rect x="640" y="500" width="15" height="15" fill="#007bff" stroke="#007bff" stroke-width="1" rx="2"/>
+  <text x="650" y="510" font-family="Arial, sans-serif" font-size="10" fill="white">✓</text>
+  <text x="665" y="512" font-family="Arial, sans-serif" font-size="12" fill="#333">响应模板 (消息格式、错误提示)</text>
+  
+  <rect x="640" y="525" width="15" height="15" fill="#ffffff" stroke="#ced4da" stroke-width="1" rx="2"/>
+  <text x="665" y="537" font-family="Arial, sans-serif" font-size="12" fill="#333">权限设置 (访问控制、管理权限)</text>
+  
+  <rect x="640" y="550" width="15" height="15" fill="#ffffff" stroke="#ced4da" stroke-width="1" rx="2"/>
+  <text x="665" y="562" font-family="Arial, sans-serif" font-size="12" fill="#333">数据源连接 (群组、频道连接)</text>
+  
+  <rect x="640" y="575" width="15" height="15" fill="#007bff" stroke="#007bff" stroke-width="1" rx="2"/>
+  <text x="650" y="585" font-family="Arial, sans-serif" font-size="10" fill="white">✓</text>
+  <text x="665" y="587" font-family="Arial, sans-serif" font-size="12" fill="#333">性能配置 (CPU、内存、存储设置)</text>
+  
+  <!-- 部署配置 -->
+  <text x="640" y="615" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">部署配置</text>
+  
+  <text x="640" y="635" font-family="Arial, sans-serif" font-size="12" fill="#666">部署环境</text>
+  <rect x="640" y="640" width="150" height="30" fill="#ffffff" stroke="#ced4da" stroke-width="1" rx="4"/>
+  <text x="650" y="658" font-family="Arial, sans-serif" font-size="12" fill="#333">生产环境 ▼</text>
+  
+  <text x="810" y="635" font-family="Arial, sans-serif" font-size="12" fill="#666">自动启动</text>
+  <rect x="810" y="645" width="15" height="15" fill="#007bff" stroke="#007bff" stroke-width="1" rx="2"/>
+  <text x="820" y="655" font-family="Arial, sans-serif" font-size="10" fill="white">✓</text>
+  <text x="835" y="657" font-family="Arial, sans-serif" font-size="12" fill="#333">克隆完成后自动启动</text>
+  
+  <!-- 资源配置 -->
+  <text x="640" y="690" font-family="Arial, sans-serif" font-size="12" fill="#666">资源配置</text>
+  
+  <text x="640" y="710" font-family="Arial, sans-serif" font-size="11" fill="#666">CPU:</text>
+  <rect x="680" y="700" width="80" height="25" fill="#ffffff" stroke="#ced4da" stroke-width="1" rx="2"/>
+  <text x="690" y="715" font-family="Arial, sans-serif" font-size="11" fill="#333">1 核</text>
+  
+  <text x="780" y="710" font-family="Arial, sans-serif" font-size="11" fill="#666">内存:</text>
+  <rect x="820" y="700" width="80" height="25" fill="#ffffff" stroke="#ced4da" stroke-width="1" rx="2"/>
+  <text x="830" y="715" font-family="Arial, sans-serif" font-size="11" fill="#333">512MB</text>
+  
+  <text x="920" y="710" font-family="Arial, sans-serif" font-size="11" fill="#666">存储:</text>
+  <rect x="960" y="700" width="80" height="25" fill="#ffffff" stroke="#ced4da" stroke-width="1" rx="2"/>
+  <text x="970" y="715" font-family="Arial, sans-serif" font-size="11" fill="#333">2GB</text>
+  
+  <!-- 预估信息 -->
+  <rect x="640" y="740" width="500" height="50" fill="#e8f4fd" stroke="#b3d9ff" stroke-width="1" rx="4"/>
+  <text x="650" y="758" font-family="Arial, sans-serif" font-size="12" fill="#0c5460" font-weight="bold">预估信息</text>
+  <text x="650" y="773" font-family="Arial, sans-serif" font-size="11" fill="#0c5460">• 克隆时间: 约2-3分钟</text>
+  <text x="650" y="785" font-family="Arial, sans-serif" font-size="11" fill="#0c5460">• 部署时间: 约1-2分钟</text>
+  
+  <!-- 底部操作按钮 -->
+  <rect x="40" y="840" width="1120" height="50" fill="#ffffff" stroke="#e9ecef" stroke-width="1"/>
+  
+  <!-- 左侧信息 -->
+  <text x="60" y="865" font-family="Arial, sans-serif" font-size="12" fill="#666">选择的机器人: 搜索机器人 #1</text>
+  
+  <!-- 右侧按钮组 -->
+  <rect x="800" y="850" width="80" height="30" fill="#6c757d" rx="4"/>
+  <text x="830" y="868" font-family="Arial, sans-serif" font-size="12" fill="white" text-anchor="middle">取消</text>
+  
+  <rect x="890" y="850" width="100" height="30" fill="#ffc107" rx="4"/>
+  <text x="930" y="868" font-family="Arial, sans-serif" font-size="12" fill="white" text-anchor="middle">预览配置</text>
+  
+  <rect x="1000" y="850" width="100" height="30" fill="#28a745" rx="4"/>
+  <text x="1040" y="868" font-family="Arial, sans-serif" font-size="12" fill="white" text-anchor="middle">开始克隆</text>
+  
+</svg>

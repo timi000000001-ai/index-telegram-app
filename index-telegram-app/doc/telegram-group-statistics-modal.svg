@@ -1,0 +1,158 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <!-- 样式定义 -->
+  <defs>
+    <style>
+      .ui-text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; fill: #1c1c1e; }
+      .button-text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; fill: #ffffff; font-weight: 500; }
+      .content-text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; fill: #3a3a3c; font-size: 14px; }
+      .label-text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; fill: #8e8e93; font-size: 12px; }
+      .subtitle { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; fill: #1c1c1e; font-size: 18px; font-weight: 600; }
+      .modal-text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; fill: #1c1c1e; font-size: 14px; }
+      .button-primary { fill: #007aff; }
+      .button-secondary { fill: #f2f2f7; stroke: #d1d1d6; stroke-width: 1; }
+      .shadow { filter: drop-shadow(0 8px 32px rgba(0,0,0,0.3)); }
+    </style>
+  </defs>
+  
+  <!-- 弹窗背景 -->
+  <rect width="800" height="600" fill="#ffffff" stroke="#e5e5ea" stroke-width="1" rx="16" class="shadow"/>
+  
+  <!-- 弹窗头部 -->
+  <rect x="0" y="0" width="800" height="60" fill="#f2f2f7" rx="16 16 0 0"/>
+  <text x="30" y="35" class="subtitle" font-weight="600">群组动态统计详情</text>
+  
+  <!-- 关闭按钮 -->
+  <circle cx="760" cy="30" r="15" fill="#ff3b30"/>
+  <text x="760" y="35" text-anchor="middle" class="button-text" font-size="12">×</text>
+  
+  <!-- 群组基本信息 -->
+  <rect x="20" y="80" width="760" height="80" fill="#ffffff" stroke="#e5e5ea" stroke-width="1" rx="8"/>
+  <circle cx="60" cy="110" r="25" fill="#0088cc"/>
+  <path d="M50 103 L70 110 L50 117 Z" fill="#ffffff"/>
+  <text x="100" y="105" class="ui-text" font-weight="600" font-size="16">Telegram开发者群组</text>
+  <text x="100" y="125" class="label-text">@developers_chat • 创建于 2023-05-15</text>
+  <text x="100" y="145" class="content-text">专业的Telegram机器人开发交流群组，汇聚全球开发者</text>
+  
+  <!-- 统计数据网格 -->
+  <rect x="20" y="180" width="180" height="100" fill="#f9f9f9" stroke="#e5e5ea" stroke-width="1" rx="8"/>
+  <text x="30" y="200" class="label-text">总成员数</text>
+  <text x="30" y="220" class="ui-text" font-weight="600" font-size="24">1,234</text>
+  <text x="30" y="240" class="label-text">在线成员</text>
+  <text x="30" y="260" class="ui-text" font-weight="600" font-size="18">156</text>
+  
+  <rect x="220" y="180" width="180" height="100" fill="#f9f9f9" stroke="#e5e5ea" stroke-width="1" rx="8"/>
+  <text x="230" y="200" class="label-text">24h消息数</text>
+  <text x="230" y="220" class="ui-text" font-weight="600" font-size="24">342</text>
+  <text x="230" y="240" class="label-text">活跃用户</text>
+  <text x="230" y="260" class="ui-text" font-weight="600" font-size="18">89</text>
+  
+  <rect x="420" y="180" width="180" height="100" fill="#f9f9f9" stroke="#e5e5ea" stroke-width="1" rx="8"/>
+  <text x="430" y="200" class="label-text">平均消息/用户</text>
+  <text x="430" y="220" class="ui-text" font-weight="600" font-size="24">3.8</text>
+  <text x="430" y="240" class="label-text">活跃高峰</text>
+  <text x="430" y="260" class="ui-text" font-weight="600" font-size="18">21:00</text>
+  
+  <rect x="620" y="180" width="160" height="100" fill="#f9f9f9" stroke="#e5e5ea" stroke-width="1" rx="8"/>
+  <text x="630" y="200" class="label-text">群组评分</text>
+  <text x="630" y="220" class="ui-text" font-weight="600" font-size="24">4.8</text>
+  <text x="630" y="240" class="label-text">活跃度</text>
+  <text x="630" y="260" class="ui-text" font-weight="600" font-size="18">85%</text>
+  
+  <!-- 活跃用户排行榜 -->
+  <rect x="20" y="300" width="360" height="180" fill="#ffffff" stroke="#e5e5ea" stroke-width="1" rx="8"/>
+  <text x="30" y="325" class="subtitle" font-weight="600">活跃用户TOP5</text>
+  
+  <text x="40" y="345" class="label-text">排名</text>
+  <text x="80" y="345" class="label-text">用户</text>
+  <text x="280" y="345" class="label-text">消息数</text>
+  <text x="330" y="345" class="label-text">活跃度</text>
+  
+  <rect x="30" y="350" width="340" height="1" fill="#e5e5ea"/>
+  
+  <text x="40" y="370" class="modal-text">1</text>
+  <circle cx="60" cy="367" r="8" fill="#34c759"/>
+  <text x="80" y="372" class="modal-text">@developer_alice</text>
+  <text x="280" y="372" class="modal-text" font-weight="600">45</text>
+  <text x="330" y="372" class="modal-text">92%</text>
+  
+  <text x="40" y="390" class="modal-text">2</text>
+  <circle cx="60" cy="387" r="8" fill="#007aff"/>
+  <text x="80" y="392" class="modal-text">@bot_master</text>
+  <text x="280" y="392" class="modal-text" font-weight="600">38</text>
+  <text x="330" y="392" class="modal-text">87%</text>
+  
+  <text x="40" y="410" class="modal-text">3</text>
+  <circle cx="60" cy="407" r="8" fill="#ff9500"/>
+  <text x="80" y="412" class="modal-text">@api_expert</text>
+  <text x="280" y="412" class="modal-text" font-weight="600">32</text>
+  <text x="330" y="412" class="modal-text">81%</text>
+  
+  <text x="40" y="430" class="modal-text">4</text>
+  <circle cx="60" cy="427" r="8" fill="#ff3b30"/>
+  <text x="80" y="432" class="modal-text">@code_ninja</text>
+  <text x="280" y="432" class="modal-text" font-weight="600">28</text>
+  <text x="330" y="432" class="modal-text">76%</text>
+  
+  <text x="40" y="450" class="modal-text">5</text>
+  <circle cx="60" cy="447" r="8" fill="#af52de"/>
+  <text x="80" y="452" class="modal-text">@tech_guru</text>
+  <text x="280" y="452" class="modal-text" font-weight="600">24</text>
+  <text x="330" y="452" class="modal-text">72%</text>
+  
+  <!-- 24小时活跃度分布图表 -->
+  <rect x="400" y="300" width="380" height="180" fill="#ffffff" stroke="#e5e5ea" stroke-width="1" rx="8"/>
+  <text x="410" y="325" class="subtitle" font-weight="600">24小时活跃度分布</text>
+  
+  <!-- 柱状图 -->
+  <rect x="420" y="450" width="12" height="20" fill="#e5e5ea"/>
+  <rect x="440" y="440" width="12" height="30" fill="#e5e5ea"/>
+  <rect x="460" y="430" width="12" height="40" fill="#34c759"/>
+  <rect x="480" y="420" width="12" height="50" fill="#34c759"/>
+  <rect x="500" y="410" width="12" height="60" fill="#ff9500"/>
+  <rect x="520" y="400" width="12" height="70" fill="#ff3b30"/>
+  <rect x="540" y="390" width="12" height="80" fill="#ff3b30"/>
+  <rect x="560" y="400" width="12" height="70" fill="#ff9500"/>
+  <rect x="580" y="420" width="12" height="50" fill="#34c759"/>
+  <rect x="600" y="440" width="12" height="30" fill="#e5e5ea"/>
+  <rect x="620" y="450" width="12" height="20" fill="#e5e5ea"/>
+  <rect x="640" y="445" width="12" height="25" fill="#e5e5ea"/>
+  <rect x="660" y="435" width="12" height="35" fill="#34c759"/>
+  <rect x="680" y="425" width="12" height="45" fill="#34c759"/>
+  <rect x="700" y="415" width="12" height="55" fill="#ff9500"/>
+  <rect x="720" y="405" width="12" height="65" fill="#ff3b30"/>
+  <rect x="740" y="395" width="12" height="75" fill="#ff3b30"/>
+  
+  <!-- 时间轴标签 -->
+  <text x="420" y="485" class="label-text" font-size="10">0</text>
+  <text x="500" y="485" class="label-text" font-size="10">6</text>
+  <text x="580" y="485" class="label-text" font-size="10">12</text>
+  <text x="660" y="485" class="label-text" font-size="10">18</text>
+  <text x="740" y="485" class="label-text" font-size="10">24</text>
+  
+  <!-- 图例 -->
+  <rect x="410" y="350" width="8" height="8" fill="#ff3b30"/>
+  <text x="425" y="358" class="label-text" font-size="10">高峰期</text>
+  <rect x="470" y="350" width="8" height="8" fill="#ff9500"/>
+  <text x="485" y="358" class="label-text" font-size="10">活跃期</text>
+  <rect x="530" y="350" width="8" height="8" fill="#34c759"/>
+  <text x="545" y="358" class="label-text" font-size="10">正常期</text>
+  <rect x="590" y="350" width="8" height="8" fill="#e5e5ea"/>
+  <text x="605" y="358" class="label-text" font-size="10">低谷期</text>
+  
+  <!-- 弹窗底部按钮 -->
+  <rect x="0" y="520" width="800" height="80" fill="#f2f2f7" rx="0 0 16 16"/>
+  
+  <!-- 操作按钮 -->
+  <rect x="550" y="535" width="100" height="35" class="button-primary" rx="17"/>
+  <text x="600" y="555" text-anchor="middle" class="button-text">加入群组</text>
+  
+  <rect x="670" y="535" width="80" height="35" class="button-secondary" rx="17"/>
+  <text x="710" y="555" text-anchor="middle" class="ui-text">关闭</text>
+  
+  <!-- 附加信息 -->
+  <text x="30" y="550" class="label-text">最后更新: 2025-01-22 14:30</text>
+  <text x="30" y="570" class="label-text">数据来源: Telegram API • 统计周期: 24小时</text>
+  
+  <!-- 版权信息 -->
+  <text x="400" y="590" text-anchor="middle" class="label-text" font-size="10">群组动态统计弹窗 v1.0.0 | 设计日期: 2025-01-22</text>
+</svg>

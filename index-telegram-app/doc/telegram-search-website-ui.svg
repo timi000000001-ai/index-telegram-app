@@ -1,0 +1,258 @@
+<svg width="1200" height="900" xmlns="http://www.w3.org/2000/svg">
+  <!-- 页面背景 -->
+  <rect width="1200" height="900" fill="#f8f9fa"/>
+  
+  <!-- 页面头部 -->
+  <rect x="0" y="0" width="1200" height="60" fill="#ffffff" stroke="#e9ecef" stroke-width="1"/>
+  
+  <!-- Logo -->
+  <circle cx="40" cy="30" r="15" fill="#007bff"/>
+  <text x="70" y="35" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#333">Telegram Search</text>
+  
+  <!-- 导航菜单 -->
+  <text x="250" y="35" font-family="Arial, sans-serif" font-size="14" fill="#007bff" font-weight="bold">搜索</text>
+  <text x="300" y="35" font-family="Arial, sans-serif" font-size="14" fill="#666">机器人管理</text>
+  <text x="380" y="35" font-family="Arial, sans-serif" font-size="14" fill="#666">帮助</text>
+  
+  <!-- 机器人状态指示器 -->
+  <rect x="500" y="15" width="120" height="30" rx="15" fill="#28a745" opacity="0.1"/>
+  <circle cx="515" cy="30" r="4" fill="#28a745"/>
+  <text x="525" y="33" font-family="Arial, sans-serif" font-size="12" fill="#28a745">3个机器人在线</text>
+  
+  <!-- 用户操作区 -->
+  <rect x="1000" y="20" width="80" height="20" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="10"/>
+  <text x="1025" y="32" font-family="Arial, sans-serif" font-size="11" fill="#666" text-anchor="middle">我的机器人</text>
+  
+  <circle cx="1150" cy="30" r="20" fill="#6c757d"/>
+  <text x="1145" y="35" font-family="Arial, sans-serif" font-size="12" fill="white">U</text>
+  
+  <!-- 主搜索区域 -->
+  <rect x="20" y="80" width="1160" height="120" fill="#ffffff" stroke="#e9ecef" stroke-width="1" rx="8"/>
+  
+  <!-- 搜索标题 -->
+  <text x="600" y="110" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#333" text-anchor="middle">Telegram 内容搜索</text>
+  <text x="600" y="130" font-family="Arial, sans-serif" font-size="14" fill="#666" text-anchor="middle">搜索群组、频道和机器人中的内容</text>
+  
+  <!-- 主搜索框 -->
+  <rect x="200" y="145" width="700" height="40" fill="#ffffff" stroke="#ced4da" stroke-width="2" rx="20"/>
+  <text x="220" y="168" font-family="Arial, sans-serif" font-size="14" fill="#999">输入关键字搜索...</text>
+  
+  <!-- 搜索按钮 -->
+  <rect x="920" y="150" width="80" height="30" fill="#007bff" rx="15"/>
+  <text x="950" y="168" font-family="Arial, sans-serif" font-size="12" fill="white" text-anchor="middle">搜索</text>
+  
+  <!-- 高级搜索选项 -->
+  <text x="1020" y="168" font-family="Arial, sans-serif" font-size="12" fill="#007bff">高级搜索</text>
+  
+  <!-- 热门搜索标签 -->
+  <text x="200" y="185" font-family="Arial, sans-serif" font-size="12" fill="#666">热门搜索:</text>
+  
+  <rect x="270" y="175" width="60" height="20" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="10"/>
+  <text x="300" y="187" font-family="Arial, sans-serif" font-size="10" fill="#666" text-anchor="middle">区块链</text>
+  
+  <rect x="340" y="175" width="60" height="20" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="10"/>
+  <text x="370" y="187" font-family="Arial, sans-serif" font-size="10" fill="#666" text-anchor="middle">加密货币</text>
+  
+  <rect x="410" y="175" width="60" height="20" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="10"/>
+  <text x="440" y="187" font-family="Arial, sans-serif" font-size="10" fill="#666" text-anchor="middle">技术讨论</text>
+  
+  <rect x="480" y="175" width="60" height="20" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="10"/>
+  <text x="510" y="187" font-family="Arial, sans-serif" font-size="10" fill="#666" text-anchor="middle">新闻资讯</text>
+  
+  <!-- 筛选器面板 -->
+  <rect x="20" y="220" width="250" height="400" fill="#ffffff" stroke="#e9ecef" stroke-width="1" rx="8"/>
+  
+  <!-- 筛选器标题 -->
+  <text x="40" y="245" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#333">筛选器</text>
+  
+  <!-- 内容类型筛选 -->
+  <text x="40" y="270" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">内容类型</text>
+  
+  <rect x="40" y="280" width="15" height="15" fill="#ffffff" stroke="#ced4da" stroke-width="1"/>
+  <text x="65" y="292" font-family="Arial, sans-serif" font-size="12" fill="#666">全部</text>
+  
+  <rect x="40" y="300" width="15" height="15" fill="#007bff" stroke="#007bff" stroke-width="1"/>
+  <text x="65" y="312" font-family="Arial, sans-serif" font-size="12" fill="#666">群组消息</text>
+  
+  <rect x="40" y="320" width="15" height="15" fill="#ffffff" stroke="#ced4da" stroke-width="1"/>
+  <text x="65" y="332" font-family="Arial, sans-serif" font-size="12" fill="#666">频道消息</text>
+  
+  <rect x="40" y="340" width="15" height="15" fill="#ffffff" stroke="#ced4da" stroke-width="1"/>
+  <text x="65" y="352" font-family="Arial, sans-serif" font-size="12" fill="#666">机器人消息</text>
+  
+  <!-- 时间筛选 -->
+  <text x="40" y="380" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">时间范围</text>
+  
+  <rect x="40" y="390" width="170" height="25" fill="#f8f9fa" stroke="#ced4da" stroke-width="1" rx="4"/>
+  <text x="50" y="405" font-family="Arial, sans-serif" font-size="11" fill="#666">选择时间范围</text>
+  
+  <!-- 来源筛选 -->
+  <text x="40" y="435" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">来源筛选</text>
+  
+  <rect x="40" y="445" width="170" height="25" fill="#f8f9fa" stroke="#ced4da" stroke-width="1" rx="4"/>
+  <text x="50" y="460" font-family="Arial, sans-serif" font-size="11" fill="#666">选择群组或频道</text>
+  
+  <!-- 质量筛选 -->
+  <text x="40" y="490" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">质量筛选</text>
+  
+  <rect x="40" y="500" width="15" height="15" fill="#ffffff" stroke="#ced4da" stroke-width="1"/>
+  <text x="65" y="512" font-family="Arial, sans-serif" font-size="12" fill="#666">高质量内容</text>
+  
+  <rect x="40" y="520" width="15" height="15" fill="#ffffff" stroke="#ced4da" stroke-width="1"/>
+  <text x="65" y="532" font-family="Arial, sans-serif" font-size="12" fill="#666">包含媒体</text>
+  
+  <!-- 克隆功能提示 -->
+  <rect x="40" y="560" width="170" height="40" fill="#e7f3ff" stroke="#007bff" stroke-width="1" rx="4"/>
+  <text x="125" y="575" font-family="Arial, sans-serif" font-size="10" fill="#007bff" text-anchor="middle">💡 发现有用的机器人？</text>
+  <text x="125" y="590" font-family="Arial, sans-serif" font-size="10" fill="#007bff" text-anchor="middle">一键克隆到你的账户</text>
+  
+  <!-- 搜索结果区域 -->
+  <rect x="290" y="220" width="890" height="400" fill="#ffffff" stroke="#e9ecef" stroke-width="1" rx="8"/>
+  
+  <!-- 结果统计 -->
+  <text x="310" y="245" font-family="Arial, sans-serif" font-size="14" fill="#666">找到约 1,234 个结果 (用时 0.15 秒)</text>
+  
+  <!-- 排序选项 -->
+  <text x="1000" y="245" font-family="Arial, sans-serif" font-size="12" fill="#666">排序:</text>
+  <rect x="1040" y="235" width="60" height="20" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="4"/>
+  <text x="1070" y="247" font-family="Arial, sans-serif" font-size="10" fill="#666" text-anchor="middle">相关性</text>
+  
+  <!-- 搜索结果卡片1 - 群组 -->
+  <rect x="310" y="260" width="850" height="80" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="4"/>
+  
+  <!-- 群组图标 -->
+  <circle cx="330" cy="285" r="12" fill="#28a745"/>
+  <text x="325" y="290" font-family="Arial, sans-serif" font-size="10" fill="white">群</text>
+  
+  <!-- 群组信息 -->
+  <text x="350" y="275" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">区块链技术讨论群</text>
+  <text x="350" y="290" font-family="Arial, sans-serif" font-size="12" fill="#666">...最新的区块链技术发展趋势，包括DeFi、NFT等热门话题的深度讨论...</text>
+  <text x="350" y="305" font-family="Arial, sans-serif" font-size="10" fill="#999">来源: @blockchain_tech • 时间: 2小时前 • 成员: 15,234</text>
+  
+  <!-- 可克隆标签 -->
+  <rect x="350" y="315" width="50" height="15" fill="#e7f3ff" stroke="#007bff" stroke-width="1" rx="7"/>
+  <text x="375" y="324" font-family="Arial, sans-serif" font-size="8" fill="#007bff" text-anchor="middle">可克隆</text>
+  
+  <!-- 操作按钮 -->
+  <rect x="1050" y="275" width="50" height="20" fill="#007bff" rx="4"/>
+  <text x="1075" y="287" font-family="Arial, sans-serif" font-size="10" fill="white" text-anchor="middle">查看详情</text>
+  
+  <rect x="1050" y="300" width="50" height="20" fill="#28a745" rx="4"/>
+  <text x="1075" y="312" font-family="Arial, sans-serif" font-size="10" fill="white" text-anchor="middle">克隆机器人</text>
+  
+  <!-- 搜索结果卡片2 - 频道 -->
+  <rect x="310" y="350" width="850" height="80" fill="#ffffff" stroke="#e9ecef" stroke-width="1" rx="4"/>
+  
+  <!-- 频道图标 -->
+  <circle cx="330" cy="375" r="12" fill="#17a2b8"/>
+  <text x="325" y="380" font-family="Arial, sans-serif" font-size="10" fill="white">频</text>
+  
+  <!-- 频道信息 -->
+  <text x="350" y="365" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">加密货币新闻频道</text>
+  <text x="350" y="380" font-family="Arial, sans-serif" font-size="12" fill="#666">...今日比特币价格突破新高，市场分析师认为这是由于机构投资者的大量买入...</text>
+  <text x="350" y="395" font-family="Arial, sans-serif" font-size="10" fill="#999">来源: @crypto_news • 时间: 5小时前 • 订阅者: 45,678</text>
+  
+  <!-- 操作按钮 -->
+  <rect x="1050" y="365" width="50" height="20" fill="#007bff" rx="4"/>
+  <text x="1075" y="377" font-family="Arial, sans-serif" font-size="10" fill="white" text-anchor="middle">查看详情</text>
+  
+  <rect x="1050" y="390" width="50" height="20" fill="#6c757d" rx="4"/>
+  <text x="1075" y="402" font-family="Arial, sans-serif" font-size="10" fill="white" text-anchor="middle">收藏</text>
+  
+  <!-- 搜索结果卡片3 - 机器人 -->
+  <rect x="310" y="440" width="850" height="80" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="4"/>
+  
+  <!-- 机器人图标 -->
+  <circle cx="330" cy="465" r="12" fill="#ffc107"/>
+  <text x="325" y="470" font-family="Arial, sans-serif" font-size="10" fill="white">🤖</text>
+  
+  <!-- 机器人信息 -->
+  <text x="350" y="455" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">智能搜索助手机器人</text>
+  <text x="350" y="470" font-family="Arial, sans-serif" font-size="12" fill="#666">...提供智能搜索功能，支持多种搜索模式和个性化推荐，帮助用户快速找到所需内容...</text>
+  <text x="350" y="485" font-family="Arial, sans-serif" font-size="10" fill="#999">机器人: @smart_search_bot • 活跃度: 高 • 用户: 8,901</text>
+  
+  <!-- 可克隆标签 -->
+  <rect x="350" y="495" width="50" height="15" fill="#e7f3ff" stroke="#007bff" stroke-width="1" rx="7"/>
+  <text x="375" y="504" font-family="Arial, sans-serif" font-size="8" fill="#007bff" text-anchor="middle">可克隆</text>
+  
+  <!-- 操作按钮 -->
+  <rect x="1050" y="455" width="50" height="20" fill="#007bff" rx="4"/>
+  <text x="1075" y="467" font-family="Arial, sans-serif" font-size="10" fill="white" text-anchor="middle">查看详情</text>
+  
+  <rect x="1050" y="480" width="50" height="20" fill="#28a745" rx="4"/>
+  <text x="1075" y="492" font-family="Arial, sans-serif" font-size="10" fill="white" text-anchor="middle">克隆机器人</text>
+  
+  <!-- 更多结果提示 -->
+  <rect x="310" y="530" width="850" height="40" fill="#ffffff" stroke="#e9ecef" stroke-width="1" rx="4"/>
+  <text x="735" y="545" font-family="Arial, sans-serif" font-size="12" fill="#666" text-anchor="middle">显示更多结果...</text>
+  <text x="735" y="560" font-family="Arial, sans-serif" font-size="10" fill="#999" text-anchor="middle">还有 1,200+ 个相关结果</text>
+  
+  <!-- 分页区域 -->
+  <rect x="290" y="640" width="890" height="50" fill="#ffffff" stroke="#e9ecef" stroke-width="1" rx="8"/>
+  
+  <!-- 分页按钮 -->
+  <rect x="650" y="655" width="30" height="20" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="4"/>
+  <text x="665" y="667" font-family="Arial, sans-serif" font-size="10" fill="#666" text-anchor="middle">上一页</text>
+  
+  <rect x="690" y="655" width="20" height="20" fill="#007bff" rx="4"/>
+  <text x="700" y="667" font-family="Arial, sans-serif" font-size="10" fill="white" text-anchor="middle">1</text>
+  
+  <rect x="720" y="655" width="20" height="20" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="4"/>
+  <text x="730" y="667" font-family="Arial, sans-serif" font-size="10" fill="#666" text-anchor="middle">2</text>
+  
+  <rect x="750" y="655" width="20" height="20" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="4"/>
+  <text x="760" y="667" font-family="Arial, sans-serif" font-size="10" fill="#666" text-anchor="middle">3</text>
+  
+  <text x="780" y="667" font-family="Arial, sans-serif" font-size="10" fill="#666">...</text>
+  
+  <rect x="800" y="655" width="30" height="20" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="4"/>
+  <text x="815" y="667" font-family="Arial, sans-serif" font-size="10" fill="#666" text-anchor="middle">下一页</text>
+  
+  <!-- 机器人状态面板（登录后显示） -->
+  <rect x="20" y="710" width="1160" height="120" fill="#ffffff" stroke="#e9ecef" stroke-width="1" rx="8"/>
+  
+  <!-- 状态面板标题 -->
+  <text x="40" y="735" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#333">我的机器人状态</text>
+  
+  <!-- 机器人状态卡片 -->
+  <rect x="40" y="745" width="200" height="60" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="4"/>
+  <circle cx="60" cy="765" r="6" fill="#28a745"/>
+  <text x="75" y="760" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">搜索机器人 #1</text>
+  <text x="75" y="775" font-family="Arial, sans-serif" font-size="10" fill="#666">运行时间: 2天5小时</text>
+  <text x="75" y="790" font-family="Arial, sans-serif" font-size="10" fill="#666">处理消息: 1,500条</text>
+  
+  <rect x="260" y="745" width="200" height="60" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1" rx="4"/>
+  <circle cx="280" cy="765" r="6" fill="#28a745"/>
+  <text x="295" y="760" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">搜索机器人 #2</text>
+  <text x="295" y="775" font-family="Arial, sans-serif" font-size="10" fill="#666">运行时间: 1天12小时</text>
+  <text x="295" y="790" font-family="Arial, sans-serif" font-size="10" fill="#666">处理消息: 890条</text>
+  
+  <!-- 快捷操作 -->
+  <rect x="900" y="755" width="80" height="25" fill="#007bff" rx="4"/>
+  <text x="930" y="770" font-family="Arial, sans-serif" font-size="11" fill="white" text-anchor="middle">管理机器人</text>
+  
+  <rect x="990" y="755" width="80" height="25" fill="#28a745" rx="4"/>
+  <text x="1020" y="770" font-family="Arial, sans-serif" font-size="11" fill="white" text-anchor="middle">克隆机器人</text>
+  
+  <rect x="1080" y="755" width="80" height="25" fill="#17a2b8" rx="4"/>
+  <text x="1110" y="770" font-family="Arial, sans-serif" font-size="11" fill="white" text-anchor="middle">查看详情</text>
+  
+  <!-- 浮动操作按钮 -->
+  <circle cx="1130" cy="650" r="25" fill="#28a745" stroke="#ffffff" stroke-width="3"/>
+  <text x="1125" y="655" font-family="Arial, sans-serif" font-size="16" fill="white">🤖</text>
+  
+  <!-- 页面底部 -->
+  <rect x="0" y="850" width="1200" height="50" fill="#f8f9fa" stroke="#e9ecef" stroke-width="1"/>
+  
+  <!-- 底部信息 -->
+  <text x="40" y="870" font-family="Arial, sans-serif" font-size="12" fill="#666">© 2025 Telegram Search Platform</text>
+  <text x="40" y="885" font-family="Arial, sans-serif" font-size="10" fill="#999">提供智能搜索和机器人克隆服务</text>
+  
+  <!-- 底部链接 -->
+  <text x="1000" y="870" font-family="Arial, sans-serif" font-size="12" fill="#007bff">帮助中心</text>
+  <text x="1070" y="870" font-family="Arial, sans-serif" font-size="12" fill="#007bff">API文档</text>
+  <text x="1130" y="870" font-family="Arial, sans-serif" font-size="12" fill="#007bff">联系我们</text>
+  
+  <!-- 版本信息 -->
+  <text x="1160" y="885" font-family="Arial, sans-serif" font-size="8" fill="#ccc" text-anchor="end">v2.1.0</text>
+</svg>
