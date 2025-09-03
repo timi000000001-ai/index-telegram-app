@@ -1,0 +1,1 @@
+import{json as e}from"@sveltejs/kit";async function t(t){const s=t.url.searchParams.get("q")||"";await new Promise(e=>setTimeout(e,120));const o=["news","sports","music","tech","movie","Svelte","Kit","Telegram","AI"].filter(e=>e.toLowerCase().includes(s.toLowerCase())).slice(0,8);return e({code:200,data:{suggestions:o}})}export{t as GET};

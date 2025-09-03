@@ -1,0 +1,221 @@
+{
+  ".svelte-kit/generated/server/internal.js": {
+    "file": "internal.js",
+    "name": "internal",
+    "src": ".svelte-kit/generated/server/internal.js",
+    "isEntry": true,
+    "imports": [
+      "_internal.js",
+      "_environment.js"
+    ]
+  },
+  "_environment.js": {
+    "file": "chunks/environment.js",
+    "name": "environment"
+  },
+  "_exports.js": {
+    "file": "chunks/exports.js",
+    "name": "exports"
+  },
+  "_false.js": {
+    "file": "chunks/false.js",
+    "name": "false"
+  },
+  "_index.js": {
+    "file": "chunks/index.js",
+    "name": "index",
+    "imports": [
+      "_false.js"
+    ]
+  },
+  "_index2.js": {
+    "file": "chunks/index2.js",
+    "name": "index",
+    "imports": [
+      "_index.js"
+    ]
+  },
+  "_internal.js": {
+    "file": "chunks/internal.js",
+    "name": "internal",
+    "imports": [
+      "_index.js",
+      "_environment.js"
+    ]
+  },
+  "_shared.js": {
+    "file": "chunks/shared.js",
+    "name": "shared",
+    "imports": [
+      "_utils.js"
+    ]
+  },
+  "_state.svelte.js": {
+    "file": "chunks/state.svelte.js",
+    "name": "state.svelte",
+    "imports": [
+      "_index.js"
+    ]
+  },
+  "_utils.js": {
+    "file": "chunks/utils.js",
+    "name": "utils"
+  },
+  "node_modules/@sveltejs/kit/src/runtime/app/server/remote/index.js": {
+    "file": "remote-entry.js",
+    "name": "remote-entry",
+    "src": "node_modules/@sveltejs/kit/src/runtime/app/server/remote/index.js",
+    "isEntry": true,
+    "imports": [
+      "_shared.js",
+      "_false.js",
+      "_environment.js"
+    ]
+  },
+  "node_modules/@sveltejs/kit/src/runtime/components/svelte-5/error.svelte": {
+    "file": "entries/fallbacks/error.svelte.js",
+    "name": "entries/fallbacks/error.svelte",
+    "src": "node_modules/@sveltejs/kit/src/runtime/components/svelte-5/error.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index.js",
+      "_state.svelte.js",
+      "_exports.js",
+      "_utils.js",
+      "_index2.js"
+    ]
+  },
+  "node_modules/@sveltejs/kit/src/runtime/server/index.js": {
+    "file": "index.js",
+    "name": "index",
+    "src": "node_modules/@sveltejs/kit/src/runtime/server/index.js",
+    "isEntry": true,
+    "imports": [
+      "_false.js",
+      "_environment.js",
+      "_exports.js",
+      "_utils.js",
+      "_index2.js",
+      "_internal.js",
+      "_shared.js"
+    ]
+  },
+  "src/routes/+layout.svelte": {
+    "file": "entries/pages/_layout.svelte.js",
+    "name": "entries/pages/_layout.svelte",
+    "src": "src/routes/+layout.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index.js",
+      "_exports.js",
+      "_utils.js",
+      "_state.svelte.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_layout.CyuQ73mg.css"
+    ]
+  },
+  "src/routes/+page.svelte": {
+    "file": "entries/pages/_page.svelte.js",
+    "name": "entries/pages/_page.svelte",
+    "src": "src/routes/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.dp4aHJAA.css"
+    ]
+  },
+  "src/routes/api/bot/status/+server.js": {
+    "file": "entries/endpoints/api/bot/status/_server.js",
+    "name": "entries/endpoints/api/bot/status/_server",
+    "src": "src/routes/api/bot/status/+server.js",
+    "isEntry": true
+  },
+  "src/routes/api/bots/status/+server.js": {
+    "file": "entries/endpoints/api/bots/status/_server.js",
+    "name": "entries/endpoints/api/bots/status/_server",
+    "src": "src/routes/api/bots/status/+server.js",
+    "isEntry": true
+  },
+  "src/routes/api/collect/+server.js": {
+    "file": "entries/endpoints/api/collect/_server.js",
+    "name": "entries/endpoints/api/collect/_server",
+    "src": "src/routes/api/collect/+server.js",
+    "isEntry": true
+  },
+  "src/routes/api/login/+server.js": {
+    "file": "entries/endpoints/api/login/_server.js",
+    "name": "entries/endpoints/api/login/_server",
+    "src": "src/routes/api/login/+server.js",
+    "isEntry": true
+  },
+  "src/routes/api/search/+server.js": {
+    "file": "entries/endpoints/api/search/_server.js",
+    "name": "entries/endpoints/api/search/_server",
+    "src": "src/routes/api/search/+server.js",
+    "isEntry": true
+  },
+  "src/routes/api/suggestions/+server.js": {
+    "file": "entries/endpoints/api/suggestions/_server.js",
+    "name": "entries/endpoints/api/suggestions/_server",
+    "src": "src/routes/api/suggestions/+server.js",
+    "isEntry": true
+  },
+  "src/routes/api/trending/+server.js": {
+    "file": "entries/endpoints/api/trending/_server.js",
+    "name": "entries/endpoints/api/trending/_server",
+    "src": "src/routes/api/trending/+server.js",
+    "isEntry": true
+  },
+  "src/routes/api/verify/+server.js": {
+    "file": "entries/endpoints/api/verify/_server.js",
+    "name": "entries/endpoints/api/verify/_server",
+    "src": "src/routes/api/verify/+server.js",
+    "isEntry": true
+  },
+  "src/routes/bots/+page.svelte": {
+    "file": "entries/pages/bots/_page.svelte.js",
+    "name": "entries/pages/bots/_page.svelte",
+    "src": "src/routes/bots/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index.js"
+    ]
+  },
+  "src/routes/daily-new/+page.svelte": {
+    "file": "entries/pages/daily-new/_page.svelte.js",
+    "name": "entries/pages/daily-new/_page.svelte",
+    "src": "src/routes/daily-new/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.B-gprUhR.css"
+    ]
+  },
+  "src/routes/daily-stats/+page.svelte": {
+    "file": "entries/pages/daily-stats/_page.svelte.js",
+    "name": "entries/pages/daily-stats/_page.svelte",
+    "src": "src/routes/daily-stats/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.Df8LXcIf.css"
+    ]
+  },
+  "src/routes/login/+page.svelte": {
+    "file": "entries/pages/login/_page.svelte.js",
+    "name": "entries/pages/login/_page.svelte",
+    "src": "src/routes/login/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index.js",
+      "_index2.js"
+    ]
+  }
+}

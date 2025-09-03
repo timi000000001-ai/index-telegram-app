@@ -1,0 +1,1 @@
+import{json as e}from"@sveltejs/kit";async function t(){return await new Promise(e=>setTimeout(e,150)),e({code:200,data:{trending:[{keyword:"SvelteKit",count:120,trend:"up"},{keyword:"Telegram",count:96,trend:"flat"},{keyword:"AI",count:80,trend:"down"}]}})}export{t as GET};

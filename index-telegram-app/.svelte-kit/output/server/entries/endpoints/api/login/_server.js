@@ -1,0 +1,1 @@
+import{json as e}from"@sveltejs/kit";async function t(t){await new Promise(e=>setTimeout(e,200));const s=await t.request.json().catch(()=>({})),{username:o,password:a}=s;return o&&a?e({code:200,data:{token:"mock-token-123",user:{id:"u001",name:o,role:"tester"}}}):e({code:400,message:"用户名或密码为空"},{status:400})}export{t as POST};
