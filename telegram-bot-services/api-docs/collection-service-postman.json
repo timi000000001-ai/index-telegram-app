@@ -1,0 +1,254 @@
+{
+  "info": {
+    "_postman_id": "d3e4f5g6-7h8i-9j0k-1l2m-3n4o5p6q7r8s",
+    "name": "Telegram 采集服务 API",
+    "description": "Telegram 采集服务的API接口集合，用于登录Telegram账户、配置目标群组和健康检查。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "登录 - 发送验证码",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{collection_service_url}}/login",
+          "host": ["{{collection_service_url}}"],
+          "path": ["login"]
+        },
+        "description": "发送登录请求，系统会向指定的电话号码发送验证码。",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone_number\": \"+1234567890\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [
+        {
+          "name": "发送验证码成功",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{collection_service_url}}/login",
+              "host": ["{{collection_service_url}}"],
+              "path": ["login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone_number\": \"+1234567890\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"status\": \"success\",\n  \"message\": \"验证码已发送到您的Telegram应用\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "登录 - 提交验证码",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{collection_service_url}}/login",
+          "host": ["{{collection_service_url}}"],
+          "path": ["login"]
+        },
+        "description": "提交验证码完成登录流程。",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone_number\": \"+1234567890\",\n  \"code\": \"12345\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [
+        {
+          "name": "登录成功",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{collection_service_url}}/login",
+              "host": ["{{collection_service_url}}"],
+              "path": ["login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone_number\": \"+1234567890\",\n  \"code\": \"12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"status\": \"success\",\n  \"message\": \"登录成功\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "配置目标群组",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{collection_service_url}}/configure",
+          "host": ["{{collection_service_url}}"],
+          "path": ["configure"]
+        },
+        "description": "配置需要采集消息的目标群组ID列表。",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"chat_ids\": [123, 456]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [
+        {
+          "name": "配置成功",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{collection_service_url}}/configure",
+              "host": ["{{collection_service_url}}"],
+              "path": ["configure"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"chat_ids\": [123, 456]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"status\": \"success\",\n  \"message\": \"群组配置已更新\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "健康检查",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{collection_service_url}}/health",
+          "host": ["{{collection_service_url}}"],
+          "path": ["health"]
+        },
+        "description": "检查服务健康状态。"
+      },
+      "response": [
+        {
+          "name": "健康状态正常",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{collection_service_url}}/health",
+              "host": ["{{collection_service_url}}"],
+              "path": ["health"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"status\": \"healthy\",\n  \"message\": \"服务运行正常\"\n}"
+        }
+      ]
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "key": "collection_service_url",
+      "value": "http://localhost:8082",
+      "type": "string"
+    }
+  ]
+}

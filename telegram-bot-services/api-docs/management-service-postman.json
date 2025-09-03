@@ -1,0 +1,116 @@
+{
+  "info": {
+    "_postman_id": "c2d3e4f5-6a7b-8c9d-0e1f-2a3b4c5d6e7f",
+    "name": "Telegram 管理服务 API",
+    "description": "Telegram 管理服务的API接口集合，用于搜索和会话管理。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "搜索接口",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{management_service_url}}/api/search?q={{query}}&page={{page}}&limit={{limit}}&filter={{filter}}",
+          "host": ["{{management_service_url}}"],
+          "path": ["api", "search"],
+          "query": [
+            {
+              "key": "q",
+              "value": "{{query}}",
+              "description": "搜索查询关键词"
+            },
+            {
+              "key": "page",
+              "value": "{{page}}",
+              "description": "页码，从1开始"
+            },
+            {
+              "key": "limit",
+              "value": "{{limit}}",
+              "description": "每页结果数量"
+            },
+            {
+              "key": "filter",
+              "value": "{{filter}}",
+              "description": "过滤类型：group(群组)、channel(频道)、bot(机器人)或all(全部)"
+            }
+          ]
+        },
+        "description": "搜索接口，支持分页和过滤功能。"
+      },
+      "response": [
+        {
+          "name": "搜索结果示例",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{management_service_url}}/api/search?q=example&page=1&limit=5&filter=all",
+              "host": ["{{management_service_url}}"],
+              "path": ["api", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "example"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                },
+                {
+                  "key": "filter",
+                  "value": "all"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"results\": [\n    {\n      \"id\": \"rec123abc\",\n      \"message\": \"这是一条示例消息\",\n      \"sender\": \"用户名\",\n      \"chat_name\": \"示例群组\",\n      \"chat_type\": \"group\",\n      \"date\": \"2023-07-15T10:30:00Z\"\n    },\n    {\n      \"id\": \"rec456def\",\n      \"message\": \"另一条包含搜索关键词的消息\",\n      \"sender\": \"另一用户\",\n      \"chat_name\": \"示例频道\",\n      \"chat_type\": \"channel\",\n      \"date\": \"2023-07-14T15:45:00Z\"\n    }\n  ],\n  \"total\": 42,\n  \"page\": 1,\n  \"limit\": 5,\n  \"pages\": 9\n}"
+        }
+      ]
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "key": "management_service_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "query",
+      "value": "example",
+      "type": "string"
+    },
+    {
+      "key": "page",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "limit",
+      "value": "5",
+      "type": "string"
+    },
+    {
+      "key": "filter",
+      "value": "all",
+      "type": "string"
+    }
+  ]
+}

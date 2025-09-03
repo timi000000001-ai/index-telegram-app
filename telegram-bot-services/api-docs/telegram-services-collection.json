@@ -1,0 +1,410 @@
+{
+  "info": {
+    "_postman_id": "f5g6h7i8-j9k0-l1m2-n3o4-p5q6r7s8t9u0",
+    "name": "Telegram 服务 API 集合",
+    "description": "Telegram 数据采集和机器人服务项目的完整 API 接口集合，包含机器人服务、管理服务和采集服务的所有接口。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "机器人服务",
+      "item": [
+        {
+          "name": "处理Webhook更新",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{bot_service_url}}/webhook/{{bot_token}}",
+              "host": ["{{bot_service_url}}"],
+              "path": ["webhook", "{{bot_token}}"]
+            },
+            "description": "处理来自Telegram的Webhook更新，需要在路径中提供机器人的token。",
+            "body": {
+              "mode": "raw",
+              "raw": "\n{\n  \"update_id\": 123456789,\n  \"message\": {\n    \"message_id\": 123,\n    \"from\": {\n      \"id\": 12345678,\n      \"is_bot\": false,\n      \"first_name\": \"User\",\n      \"username\": \"username\",\n      \"language_code\": \"en\"\n    },\n    \"chat\": {\n      \"id\": 12345678,\n      \"first_name\": \"User\",\n      \"username\": \"username\",\n      \"type\": \"private\"\n    },\n    \"date\": 1631234567,\n    \"text\": \"/help\"\n  }\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "管理服务",
+      "item": [
+        {
+          "name": "搜索接口",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{management_service_url}}/api/search?q={{query}}&page={{page}}&limit={{limit}}&filter={{filter}}",
+              "host": ["{{management_service_url}}"],
+              "path": ["api", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "{{query}}",
+                  "description": "搜索查询关键词"
+                },
+                {
+                  "key": "page",
+                  "value": "{{page}}",
+                  "description": "页码，从1开始"
+                },
+                {
+                  "key": "limit",
+                  "value": "{{limit}}",
+                  "description": "每页结果数量"
+                },
+                {
+                  "key": "filter",
+                  "value": "{{filter}}",
+                  "description": "过滤类型：group(群组)、channel(频道)、bot(机器人)或all(全部)"
+                }
+              ]
+            },
+            "description": "搜索接口，支持分页和过滤功能。"
+          },
+          "response": [
+            {
+              "name": "搜索结果示例",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{management_service_url}}/api/search?q=example&page=1&limit=5&filter=all",
+                  "host": ["{{management_service_url}}"],
+                  "path": ["api", "search"],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "example"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "5"
+                    },
+                    {
+                      "key": "filter",
+                      "value": "all"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"results\": [\n    {\n      \"id\": \"rec123abc\",\n      \"message\": \"这是一条示例消息\",\n      \"sender\": \"用户名\",\n      \"chat_name\": \"示例群组\",\n      \"chat_type\": \"group\",\n      \"date\": \"2023-07-15T10:30:00Z\"\n    },\n    {\n      \"id\": \"rec456def\",\n      \"message\": \"另一条包含搜索关键词的消息\",\n      \"sender\": \"另一用户\",\n      \"chat_name\": \"示例频道\",\n      \"chat_type\": \"channel\",\n      \"date\": \"2023-07-14T15:45:00Z\"\n    }\n  ],\n  \"total\": 42,\n  \"page\": 1,\n  \"limit\": 5,\n  \"pages\": 9\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "采集服务",
+      "item": [
+        {
+          "name": "登录 - 发送验证码",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{collection_service_url}}/login",
+              "host": ["{{collection_service_url}}"],
+              "path": ["login"]
+            },
+            "description": "发送登录请求，系统会向指定的电话号码发送验证码。",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone_number\": \"+1234567890\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "发送验证码成功",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{collection_service_url}}/login",
+                  "host": ["{{collection_service_url}}"],
+                  "path": ["login"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone_number\": \"+1234567890\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": \"success\",\n  \"message\": \"验证码已发送到您的Telegram应用\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "登录 - 提交验证码",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{collection_service_url}}/login",
+              "host": ["{{collection_service_url}}"],
+              "path": ["login"]
+            },
+            "description": "提交验证码完成登录流程。",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone_number\": \"+1234567890\",\n  \"code\": \"12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "登录成功",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{collection_service_url}}/login",
+                  "host": ["{{collection_service_url}}"],
+                  "path": ["login"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone_number\": \"+1234567890\",\n  \"code\": \"12345\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": \"success\",\n  \"message\": \"登录成功\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "配置目标群组",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{collection_service_url}}/configure",
+              "host": ["{{collection_service_url}}"],
+              "path": ["configure"]
+            },
+            "description": "配置需要采集消息的目标群组ID列表。",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"chat_ids\": [123, 456]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "配置成功",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{collection_service_url}}/configure",
+                  "host": ["{{collection_service_url}}"],
+                  "path": ["configure"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"chat_ids\": [123, 456]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": \"success\",\n  \"message\": \"群组配置已更新\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "健康检查",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{collection_service_url}}/health",
+              "host": ["{{collection_service_url}}"],
+              "path": ["health"]
+            },
+            "description": "检查服务健康状态。"
+          },
+          "response": [
+            {
+              "name": "健康状态正常",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{collection_service_url}}/health",
+                  "host": ["{{collection_service_url}}"],
+                  "path": ["health"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": \"healthy\",\n  \"message\": \"服务运行正常\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "key": "bot_service_url",
+      "value": "http://localhost:8081",
+      "type": "string"
+    },
+    {
+      "key": "management_service_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "collection_service_url",
+      "value": "http://localhost:8082",
+      "type": "string"
+    },
+    {
+      "key": "bot_token",
+      "value": "YOUR_BOT_TOKEN",
+      "type": "string"
+    },
+    {
+      "key": "query",
+      "value": "example",
+      "type": "string"
+    },
+    {
+      "key": "page",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "limit",
+      "value": "5",
+      "type": "string"
+    },
+    {
+      "key": "filter",
+      "value": "all",
+      "type": "string"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "e4f5g6h7-i8j9-k0l1-m2n3-o4p5q6r7s8t9",
+  "name": "Telegram 服务环境配置",
+  "values": [
+    {
+      "key": "bot_service_url",
+      "value": "http://localhost:8081",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "management_service_url",
+      "value": "http://localhost:8080",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "collection_service_url",
+      "value": "http://localhost:8082",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "bot_token",
+      "value": "YOUR_BOT_TOKEN",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "query",
+      "value": "example",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "page",
+      "value": "1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "limit",
+      "value": "5",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "filter",
+      "value": "all",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2023-07-18T10:00:00.000Z",
+  "_postman_exported_using": "Postman/10.15.0"
+}
