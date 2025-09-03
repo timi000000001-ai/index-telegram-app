@@ -1,0 +1,17 @@
+index-telegram-app/.svelte-kit/ambient.d.ts
+index-telegram-app/.svelte-kit/non-ambient.d.ts
+index-telegram-app/.svelte-kit/tsconfig.json
+index-telegram-app/.svelte-kit/types/route_meta_data.json
+index-telegram-app/.svelte-kit/types/src/routes/$types.d.ts
+index-telegram-app/.svelte-kit/types/src/routes/api/bot/status/$types.d.ts
+index-telegram-app/.svelte-kit/types/src/routes/api/bots/status/$types.d.ts
+index-telegram-app/.svelte-kit/types/src/routes/api/collect/$types.d.ts
+index-telegram-app/.svelte-kit/types/src/routes/api/login/$types.d.ts
+index-telegram-app/.svelte-kit/types/src/routes/api/search/$types.d.ts
+index-telegram-app/.svelte-kit/types/src/routes/api/suggestions/$types.d.ts
+index-telegram-app/.svelte-kit/types/src/routes/api/trending/$types.d.ts
+index-telegram-app/.svelte-kit/types/src/routes/api/verify/$types.d.ts
+index-telegram-app/.svelte-kit/types/src/routes/bots/$types.d.ts
+index-telegram-app/.svelte-kit/types/src/routes/daily-new/$types.d.ts
+index-telegram-app/.svelte-kit/types/src/routes/daily-stats/$types.d.ts
+index-telegram-app/.svelte-kit/types/src/routes/login/$types.d.ts

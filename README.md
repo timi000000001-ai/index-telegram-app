@@ -1,38 +1,119 @@
-# Telegram 搜索平台
+# Telegram Search Platform
 
-本项目是一个综合性的 Telegram 搜索平台，由用于数据收集的后端服务和用于用户交互的 Web 应用程序组成。
+This project is a comprehensive Telegram search platform, consisting of a backend service for data collection and a web application for user interaction.
 
-## 项目结构
+## Project Structure
 
-该项目分为两个主要部分：
+The project is divided into two main parts:
 
-- `telegram-bot-services/`：一个用 Go 编写的后端服务集合。这些服务负责与 Telegram API 交互，从群组和频道收集消息，并提供搜索 API。
-- `telegram-web-app/`：一个基于 Svelte 的 Web 应用程序，为搜索后端服务收集的内容提供了一个用户友好的界面。
+- `telegram-bot-services/`: A collection of backend services written in Go. These services are responsible for interacting with the Telegram API, collecting messages from groups and channels, and providing a search API.
+- `index-telegram-app/`: A Svelte-based web application that provides a user-friendly interface for searching the content collected by the backend services.
 
-## 功能
+## Features
 
-- **数据收集**：后端服务可以登录 Telegram 帐户，加入指定的群组和频道，并收集消息。
-- **搜索 API**：提供强大的搜索 API 来查询收集到的消息，并支持过滤和分页。
-- **Web 界面**：现代化且响应迅速的 Web 界面，允许用户轻松搜索内容、查看结果和管理设置。
-- **机器人集成**：该平台包括一个 Telegram 机器人，可用于直接在 Telegram 中搜索内容。
+- **Data Collection**: The backend services can log into a Telegram account, join specified groups and channels, and collect messages.
+- **Search API**: Provides a powerful search API to query the collected messages, with support for filtering and pagination.
+- **Web Interface**: A modern and responsive web interface that allows users to easily search for content, view results, and manage settings.
+- **Bot Integration**: The platform includes a Telegram bot that can be used to search for content directly within Telegram.
 
-## 法律声明
+## Architecture
 
-**使用限制**：本项目不适用于中国大陆。Telegram 在中国大陆受到政府的访问限制，本项目的数据收集和处理活动可能违反当地法律法规。
+The backend is composed of three main services:
 
-**免责声明**：本项目开发人员对因使用不当、违反当地法律或数据隐私问题而导致的任何后果概不负责。用户应自行评估法律风险，并在必要时咨询法律专业人士。
+- **Bot Service**: Handles user interactions with the Telegram bot, provides search functionality, and stores messages.
+- **Management Service**: Exposes a REST API for search and session management, acting as a bridge between the frontend and backend services.
+- **Collection Service**: Manages Telegram account login, configures target groups, and collects messages for indexing.
 
-**建议**：如果您位于中国大陆，请不要下载、安装或运行本项目。请寻找符合当地法规的替代方案。
+The services are designed to work together, leveraging PocketBase for storage and Meilisearch for fast search capabilities.
 
-## 赞助
+```
+[Svelte Frontend (Static HTML)] ↔ [Management Service (:8080)]
+                                    ↕ (REST API)
+[Bot Service (:8081)] ↔ [Collection Service (:8082)]
+      ↕                           ↕
+[PocketBase (Storage)]       [Meilisearch (Search)]
+      ↕                           ↕
+[S3/MinIO (Media)]
+```
 
-如果您觉得这个项目对您有帮助，请考虑赞助我们。
+## Getting Started
+
+### Prerequisites
+
+- Go 1.21+
+- Docker (optional)
+- Telegram API Credentials
+- PocketBase
+- Meilisearch
+- SvelteKit (optional)
+
+### Installation
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-repo/telegram-search-platform.git
+    cd telegram-search-platform
+    ```
+2.  **Initialize Go modules:**
+    ```bash
+    cd telegram-bot-services/bot-service && go mod init bot-service && go mod tidy
+    cd ../management-service && go mod init management-service && go mod tidy
+    cd ../collection-service && go mod init collection-service && go mod tidy
+    cd ../..
+    ```
+3.  **Build the services:**
+    ```bash
+    go build -o telegram-bot-services/bot-service/bot-service telegram-bot-services/bot-service
+    go build -o telegram-bot-services/management-service/management-service telegram-bot-services/management-service
+    go build -o telegram-bot-services/collection-service/collection-service telegram-bot-services/collection-service
+    ```
+4.  **Install frontend dependencies:**
+    ```bash
+    cd index-telegram-app
+    npm install
+    ```
+
+### Configuration
+
+Create a `.env` file in each service directory (`bot-service`, `management-service`, `collection-service`) and provide the necessary environment variables. Refer to the `en-README.md` in the `telegram-bot-services` directory for more details.
+
+## Usage
+
+### Running the Services
+
+-   **Bot Service**: `./telegram-bot-services/bot-service/bot-service`
+-   **Management Service**: `./telegram-bot-services/management-service/management-service`
+-   **Collection Service**: `./telegram-bot-services/collection-service/collection-service`
+
+### Running the Frontend
+
+```bash
+cd index-telegram-app
+npm run dev
+```
+
+## API Documentation
+
+API documentation is available in the `telegram-bot-services/api-docs` directory in the form of Postman collections.
+
+## Legal Notice
+
+**Usage Restriction**: This project is not intended for use in mainland China. Access to Telegram is restricted by the government in mainland China, and the data collection and processing activities of this project may violate local laws and regulations.
+
+**Disclaimer**: The developers of this project are not responsible for any consequences resulting from improper use, violation of local laws, or data privacy issues. Users should assess the legal risks themselves and consult with legal professionals if necessary.
+
+**Recommendation**: If you are located in mainland China, please do not download, install, or run this project. Please look for alternative solutions that comply with local regulations.
+
+## Sponsorship
+
+If you find this project helpful, please consider sponsoring us.
 
 - **TRX & USDT (TRC20):** `TD5JGaR7cY5ZxDnZNgmCSv66axR9DhrcYz`
 
- <img width="512" height="530" alt="image" src="https://github.com/user-attachments/assets/08a5cf87-e174-4bf5-ae2d-1ed676c7b90e" />
+<img width="512" height="530" alt="image" src="https://github.com/user-attachments/assets/08a5cf87-e174-4bf5-ae2d-1ed676c7b90e" />
 
+Contact on Telegram: https://t.me/simi001001 https://t.me/SoSo00000000001
 
-## 许可证
+## License
 
-本项目根据 MIT 许可证授权。有关详细信息，请参阅 `LICENSE` 文件。
+This project is licensed under the MIT License. See the `LICENSE` file for details.

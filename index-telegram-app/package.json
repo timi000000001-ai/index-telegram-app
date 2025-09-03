@@ -30,6 +30,7 @@
 		]
 	},
 	"dependencies": {
-		"@sveltejs/adapter-static": "^3.0.9"
+		"@sveltejs/adapter-static": "^3.0.9",
+		"pnpm": "^10.15.1"
 	}
 }
