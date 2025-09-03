@@ -13,7 +13,11 @@
    * @description 处理新增数据展示和tab切换
    */
   import { onMount } from 'svelte';
-  import { apiFetch } from '$lib/api.js';
+import { apiFetch } from '$lib/api.js';
+import GroupModal from '$lib/components/GroupModal.svelte';
+  import { writable } from 'svelte/store';
+
+  const collapsedCategories = writable({});
   
   /**
    * 当前选中的tab
@@ -38,6 +42,8 @@
    * @type {string}
    */
   let error = '';
+let showGroupModal = false;
+let selectedGroupData = null;
   
   /**
    * 获取每日新增数据
@@ -162,6 +168,33 @@
   function switchTab(tab) {
     activeTab = tab;
   }
+
+function openGroupModal(item) {
+  selectedGroupData = {
+    name: item.name,
+    username: item.username || '',
+    description: item.description,
+    createdAt: item.addedTimeStr,
+    stats: {
+      totalMembers: item.members,
+      onlineMembers: Math.floor(item.members * 0.1),
+      messages24h: Math.floor(Math.random() * 1000) + 500,
+      avgDaily: Math.floor(Math.random() * 100) + 50,
+      activityRate: Math.floor(Math.random() * 100),
+      groupScore: (Math.random() * 10).toFixed(1)
+    },
+    topUsers: [
+      { username: 'user1', messages: 100, activity: 80 },
+      { username: 'user2', messages: 90, activity: 75 },
+      { username: 'user3', messages: 80, activity: 70 },
+      { username: 'user4', messages: 70, activity: 65 },
+      { username: 'user5', messages: 60, activity: 60 }
+    ],
+    hourlyActivity: Array(24).fill(0).map(() => Math.random()),
+    lastUpdate: new Date().toLocaleString()
+  };
+  showGroupModal = true;
+}
   
   /**
    * 按分类分组数据
@@ -197,6 +230,13 @@
   // 响应式计算
   $: groupedData = groupByCategory(newData);
   $: sortedData = sortByMembers(newData);
+
+  function toggleCategory(category) {
+    collapsedCategories.update(current => ({
+      ...current,
+      [category]: !current[category]
+    }));
+  }
 </script>
 
 <!--
@@ -272,7 +312,7 @@
         <div class="p-6">
           <div class="grid gap-4">
             {#each sortedData as item}
-              <div class="flex items-start gap-4 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+              <div class="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
                 <!-- 头像 -->
                 <img src={item.avatar} alt={item.name} class="w-12 h-12 rounded-full flex-shrink-0" />
                 
@@ -293,7 +333,7 @@
                   
                   <p class="text-slate-600 text-sm mb-2 line-clamp-2">{item.description}</p>
                   
-                  <div class="flex items-center gap-4 text-sm text-slate-500 mb-2">
+                  <div class="flex flex-wrap items-center gap-4 text-sm text-slate-500 mb-2">
                     <span class="flex items-center gap-1">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -324,7 +364,7 @@
                 
                 <!-- 操作按钮 -->
                 <div class="flex flex-col gap-2 flex-shrink-0">
-                  <button class="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors">
+                  <button class="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors" on:click={() => openGroupModal(item)}>
                     查看详情
                   </button>
                   <button class="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded hover:bg-gray-200 transition-colors">
@@ -341,15 +381,23 @@
           <div class="grid gap-6">
             {#each Object.entries(groupedData) as [category, items]}
               <div class="border border-slate-200 rounded-lg overflow-hidden">
-                <div class="bg-slate-100 px-4 py-3 border-b border-slate-200">
+                <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 cursor-pointer flex justify-between items-center" on:click={() => toggleCategory(category)}>
                   <h3 class="font-semibold text-slate-800 flex items-center gap-2">
                     <span class="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"></span>
                     {category} ({items.length})
                   </h3>
+                  <svg
+                    class="w-5 h-5 text-slate-500 transform transition-transform duration-200"
+                    class:rotate-180={!$collapsedCategories[category]}
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
                 </div>
-                <div class="divide-y divide-slate-200">
-                  {#each items as item}
-                    <div class="flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors">
+                {#if !$collapsedCategories[category]}
+                  <div class="divide-y divide-slate-200">
+                    {#each items as item}
+                    <div class="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 hover:bg-slate-50 transition-colors">
                       <img src={item.avatar} alt={item.name} class="w-10 h-10 rounded-full" />
                       <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-1">
@@ -364,19 +412,20 @@
                             <span class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full">NEW</span>
                           {/if}
                         </div>
-                        <div class="flex items-center gap-3 text-sm text-slate-600">
+                        <div class="flex flex-wrap items-center gap-3 text-sm text-slate-600">
                           <span>{item.type === '机器人' ? '机器人' : `${item.members.toLocaleString()} 成员`}</span>
                           <span>{item.addedTimeStr}</span>
                         </div>
                       </div>
                       <div class="flex gap-2">
-                        <button class="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors">
+                        <button class="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors" on:click={() => openGroupModal(item)}>
                           查看
                         </button>
                       </div>
                     </div>
                   {/each}
                 </div>
+                {/if}
               </div>
             {/each}
           </div>
@@ -385,6 +434,12 @@
     {/if}
   </div>
 </div>
+
+<GroupModal 
+  show={showGroupModal} 
+  groupData={selectedGroupData} 
+  on:close={() => showGroupModal = false} 
+/>
 
 <!--
  * 样式定义

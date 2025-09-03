@@ -202,23 +202,20 @@
         <div class="p-6">
           <div class="grid gap-4">
             {#each statsData as item, index}
-              <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                <!-- 排名 -->
-                <div class="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                  {index + 1}
-                </div>
+              <div class="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 p-3 md:p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                
                 
                 <!-- 头像 -->
                 <img src={item.avatar} alt={item.name} class="w-12 h-12 rounded-full" />
                 
                 <!-- 基本信息 -->
                 <div class="flex-1">
-                  <div class="flex items-center gap-2 mb-1">
+                  <div class="flex flex-wrap items-center gap-2 mb-1 text-sm md:text-base">
                     <h3 class="font-semibold text-slate-800">{item.name}</h3>
                     <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">{item.type}</span>
                     <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">{item.category}</span>
                   </div>
-                  <div class="flex items-center gap-4 text-sm text-slate-600">
+                  <div class="flex flex-col md:flex-row flex-wrap items-start md:items-center gap-2 md:gap-4 text-xs md:text-sm text-slate-600">
                     <span>总成员: <strong class="text-slate-800">{item.totalMembers.toLocaleString()}</strong></span>
                     <span>新增: <strong class="text-green-600">+{item.newMembers}</strong></span>
                     <span>24h消息: <strong class="text-blue-600">{item.messages24h}</strong></span>
@@ -227,7 +224,7 @@
                 </div>
                 
                 <!-- 评分 -->
-                <div class="flex-shrink-0 text-right">
+                <div class="flex-shrink-0 flex items-center gap-2 text-right">
                   <div class="text-lg font-bold text-amber-600">{item.dailyScore}</div>
                   <div class="text-xs text-slate-500">当日评分</div>
                 </div>
@@ -249,14 +246,14 @@
                 </div>
                 <div class="divide-y divide-slate-200">
                   {#each items as item}
-                    <div class="flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors">
+                    <div class="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 p-3 md:p-4 hover:bg-slate-50 transition-colors">
                       <img src={item.avatar} alt={item.name} class="w-10 h-10 rounded-full" />
                       <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-1">
+                        <div class="flex flex-wrap items-center gap-2 mb-1 text-sm md:text-base">
                           <h4 class="font-medium text-slate-800">{item.name}</h4>
                           <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">{item.type}</span>
                         </div>
-                        <div class="flex items-center gap-3 text-sm text-slate-600">
+                        <div class="flex flex-col md:flex-row flex-wrap items-start md:items-center gap-2 md:gap-3 text-xs md:text-sm text-slate-600">
                           <span>{item.totalMembers.toLocaleString()} 成员</span>
                           <span class="text-green-600">+{item.newMembers} 新增</span>
                           <span class="text-amber-600">评分 {item.dailyScore}</span>

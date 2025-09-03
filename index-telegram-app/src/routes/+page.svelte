@@ -11,8 +11,9 @@
 import { onMount, onDestroy } from 'svelte';
 import { browser } from '$app/environment';
 import { apiFetch } from '$lib/api.js';
+import { generateMockData, generateMockSuggestions, generateMockTrending } from '$lib/mockApi.js';
 import GroupModal from '$lib/components/GroupModal.svelte';
-import TypewriterText from '$lib/components/TypewriterText.svelte';
+
 import CollectionModal from '$lib/components/CollectionModal.svelte';
 
 // ===================== 状态管理 =====================
@@ -51,12 +52,7 @@ let showGroupModal = false;
 let showCollectionModal = false;
 
 // 文本动画控制
-/** @type {number} 打字机动画速度 */
-let typewriterSpeed = 50;
-/** @type {boolean} 是否启用文本动画 */
-let enableTextAnimation = true;
-/** @type {boolean} 是否显示动画控制面板 */
-let showAnimationControls = false;
+
 /** @type {any} 当前选中的群组/频道详情数据 */
 let selectedGroupData = null;
 
@@ -64,7 +60,7 @@ let selectedGroupData = null;
 /** @type {number} 当前页码 */
 let page = 1;
 /** @type {number} 每页条数 */
-let size = 20;
+let size = 10;
 /** @type {number} 总结果数 */
 let total = 0;
 /** @type {string} 排序方式 */
@@ -126,6 +122,7 @@ function highlight(text, query) {
     const regex = new RegExp(`(${keyword})`, 'gi');
     result = result.replace(regex, '<mark>$1</mark>');
   });
+  
   return result;
 }
 
@@ -138,138 +135,7 @@ function totalPages() {
 }
 
 // ===================== API 调用 =====================
-/**
- * 生成模拟搜索数据
- * @param {string} searchQuery - 搜索关键词
- * @param {number} pageNum - 页码
- * @param {number} pageSize - 每页条数
- * @returns {{results: any[], total: number}} 模拟搜索结果
- */
-function generateMockData(searchQuery, pageNum, pageSize) {
-  const mockResults = [
-    {
-       id: '1',
-       type: 'group',
-       source: 'Telegram技术交流群',
-       timestamp: Date.now() - 3600000,
-       content: `关于${searchQuery}的讨论：这是一个非常有趣的话题，大家可以分享一下自己的经验和看法。`,
-       relevance: 0.95,
-       interactions: 42
-     },
-     {
-       id: '2', 
-       type: 'channel',
-       source: '科技资讯频道',
-       timestamp: Date.now() - 7200000,
-       content: `最新消息：${searchQuery}相关的技术更新已经发布，包含了许多令人兴奋的新功能和改进。`,
-       relevance: 0.88,
-       interactions: 156
-     },
-     {
-       id: '3',
-       type: 'bot', 
-       source: '智能助手机器人',
-       timestamp: Date.now() - 10800000,
-       content: `关于${searchQuery}，我可以为您提供详细的解答和相关资源推荐。`,
-       relevance: 0.82,
-       interactions: 8
-     },
-     {
-       id: '4',
-       type: 'message',
-       source: '设计分享群',
-       timestamp: Date.now() - 14400000, 
-       content: `分享一个关于${searchQuery}的精美设计图片，希望能给大家带来灵感。[图片]`,
-       relevance: 0.76,
-       interactions: 89
-     },
-     {
-       id: '5',
-       type: 'message',
-       source: '开发者社区',
-       timestamp: Date.now() - 18000000,
-       content: `推荐一个${searchQuery}相关的优秀开源项目：https://github.com/example/project 值得学习！`,
-       relevance: 0.71,
-       interactions: 234
-     },
-     {
-       id: '6',
-       type: 'group',
-       source: '学习交流群',
-       timestamp: Date.now() - 21600000,
-       content: `今天学习了${searchQuery}的基础知识，感觉收获很大。有没有推荐的进阶资料？`,
-       relevance: 0.68,
-       interactions: 67
-     },
-     {
-       id: '7',
-       type: 'channel',
-       source: '新闻资讯',
-       timestamp: Date.now() - 25200000,
-       content: `行业动态：${searchQuery}领域出现了新的发展趋势，预计将对整个行业产生重大影响。`,
-       relevance: 0.64,
-       interactions: 312
-     },
-     {
-       id: '8',
-       type: 'bot',
-       source: '客服机器人',
-       timestamp: Date.now() - 28800000,
-       content: `您好！关于${searchQuery}的问题，我已经为您整理了相关信息，请查看。`,
-       relevance: 0.59,
-       interactions: 15
-     }
-  ];
 
-  // 根据筛选器过滤结果
-   let filteredResults = mockResults.filter(item => {
-     // 类型筛选 - 兼容新的筛选器结构
-     let typeMatch = false;
-     if (item.type === 'group' && filters.types.group) typeMatch = true;
-     if (item.type === 'channel' && filters.types.channel) typeMatch = true;
-     if (item.type === 'private' && filters.types.bot) typeMatch = true; // 私聊映射到机器人
-     if ((item.type === 'media' || item.type === 'link') && filters.types.message) typeMatch = true; // 媒体和链接映射到消息
-     if (!typeMatch) return false;
-    
-    // 时间筛选
-    if (filters.timePreset !== 'any') {
-      const now = Date.now();
-      const itemTime = item.timestamp;
-      let timeLimit;
-      
-      switch (filters.timePreset) {
-        case '1h': timeLimit = now - 3600000; break;
-        case '24h': timeLimit = now - 86400000; break;
-        case '7d': timeLimit = now - 604800000; break;
-        case '30d': timeLimit = now - 2592000000; break;
-        default: timeLimit = 0;
-      }
-      
-      if (itemTime < timeLimit) return false;
-    }
-    
-    return true;
-  });
-
-  // 排序
-  if (sort === 'time') {
-    filteredResults.sort((a, b) => b.timestamp - a.timestamp);
-  } else if (sort === 'heat') {
-    filteredResults.sort((a, b) => b.interactions - a.interactions);
-  } else {
-    filteredResults.sort((a, b) => b.relevance - a.relevance);
-  }
-
-  // 分页
-  const startIndex = (pageNum - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const pageResults = filteredResults.slice(startIndex, endIndex);
-
-  return {
-    results: pageResults,
-    total: filteredResults.length
-  };
-}
 
 /**
  * 执行搜索
@@ -324,29 +190,7 @@ async function search() {
   }
 }
 
-/**
- * 生成模拟搜索建议
- * @param {string} q - 搜索查询字符串
- * @returns {string[]} 建议列表
- */
-function generateMockSuggestions(q) {
-  const baseSuggestions = [
-    'Vue.js开发技巧',
-    'React组件设计',
-    'JavaScript异步编程',
-    'CSS布局方案',
-    'Node.js后端开发',
-    'TypeScript类型系统',
-    'Webpack配置优化',
-    'Git版本控制',
-    'Docker容器化',
-    'API接口设计'
-  ];
-  
-  return baseSuggestions
-    .filter(suggestion => suggestion.toLowerCase().includes(q.toLowerCase()))
-    .slice(0, 5);
-}
+
 
 /**
    * 获取搜索建议
@@ -375,76 +219,10 @@ function generateMockSuggestions(q) {
   } finally {
     isFetchingSuggestions = false;
   }
-}, 300);
+});
 
-/**
- * 生成模拟热门搜索数据
- * @author 前端开发团队
- * @date 2024-01-22
- * @version 2.0.0
- * @returns {Array<{keyword: string, count: number, category: string, trend: string}>} 热门搜索列表
- * @description 生成包含多种类别的热门搜索数据，支持趋势标识和分类展示
- */
-function generateMockTrending() {
-  // 定义不同类别的热门搜索关键词
-  const trendingCategories = {
-    technology: [
-      { keyword: 'ChatGPT应用开发', count: 2850, trend: 'up' },
-      { keyword: 'Vue3 Composition API', count: 2340, trend: 'up' },
-      { keyword: 'React Server Components', count: 1980, trend: 'hot' },
-      { keyword: 'TypeScript 5.0新特性', count: 1756, trend: 'up' },
-      { keyword: 'Vite 4.0构建优化', count: 1542, trend: 'stable' },
-      { keyword: 'Next.js 13 App Router', count: 1423, trend: 'up' }
-    ],
-    blockchain: [
-      { keyword: '以太坊2.0升级', count: 1890, trend: 'hot' },
-      { keyword: 'Web3开发入门', count: 1654, trend: 'up' },
-      { keyword: 'NFT智能合约', count: 1234, trend: 'stable' },
-      { keyword: 'DeFi协议分析', count: 987, trend: 'down' }
-    ],
-    ai: [
-      { keyword: '机器学习算法', count: 2156, trend: 'hot' },
-      { keyword: '深度学习框架', count: 1876, trend: 'up' },
-      { keyword: '自然语言处理', count: 1543, trend: 'stable' },
-      { keyword: '计算机视觉', count: 1321, trend: 'up' }
-    ],
-    mobile: [
-      { keyword: 'Flutter跨平台开发', count: 1678, trend: 'up' },
-      { keyword: 'React Native性能优化', count: 1456, trend: 'stable' },
-      { keyword: 'iOS SwiftUI', count: 1234, trend: 'up' },
-      { keyword: 'Android Jetpack Compose', count: 1123, trend: 'hot' }
-    ],
-    devops: [
-      { keyword: 'Docker容器化部署', count: 1789, trend: 'stable' },
-      { keyword: 'Kubernetes集群管理', count: 1567, trend: 'up' },
-      { keyword: 'CI/CD自动化流程', count: 1345, trend: 'stable' },
-      { keyword: '微服务架构设计', count: 1234, trend: 'up' }
-    ]
-  };
 
-  // 合并所有类别的数据
-  /** @type {Array<{keyword: string, count: number, trend: string, category: string}>} */
-  const allTrending = [];
-  Object.entries(trendingCategories).forEach(([category, items]) => {
-    items.forEach(item => {
-      allTrending.push({
-        ...item,
-        category: category
-      });
-    });
-  });
 
-  // 按搜索次数排序并返回前20个
-  return allTrending
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 20)
-    .map((item, index) => ({
-      ...item,
-      rank: index + 1,
-      // 添加一些随机波动使数据更真实
-      count: item.count + Math.floor(Math.random() * 100) - 50
-    }));
-}
 
 /**
  * 获取热门搜索
@@ -584,7 +362,7 @@ function resetFilters() {
       channel: true,
       private: true,
       media: true,
-      link: true
+      link: true,
     },
     timePreset: 'any',
     timeOrder: 'desc',
@@ -673,7 +451,6 @@ function generateGroupStatistics(item) {
       activityRate: Math.floor((activeUsers / baseMembers) * 100),
       groupScore: (Math.random() * 2 + 3).toFixed(1)
     },
-    
     // 活跃用户TOP5
     topUsers: [
       { username: '@developer_alice', messages: 45, activity: 92 },
@@ -730,8 +507,9 @@ function clearHistory() {
 onMount(() => {
   loadHistory();
   fetchTrending();
-
 });
+
+
 </script>
 
 <!-- ===================== 页面结构 ===================== -->
@@ -804,7 +582,7 @@ onMount(() => {
         </span>
       </button>
       
-      <button class="relative bg-white/60 text-slate-700 border-2 border-blue-200/50 px-6 py-4 rounded-full cursor-pointer transition-all duration-300 backdrop-blur-md hover:bg-white/80 hover:border-blue-300/70 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400/50" on:click={toggleAdvanced}>
+      <button class="relative bg-white/60 text-slate-700 border-2 border-blue-200/50 px-6 py-4 rounded-full cursor-pointer transition-all duration-300 backdrop-blur-md hover:bg-white/80 hover:border-blue-300/70 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400/50 {query.length === 0 ? 'hidden' : 'flex'} md:flex" on:click={toggleAdvanced}>
         <span class="flex items-center gap-2">
           高级选项 
           <span class="transition-transform duration-300 {showAdvanced ? 'rotate-180' : ''}">
@@ -841,9 +619,9 @@ onMount(() => {
     {/if}
 
     <!-- 历史与热门 -->
-    <div class="flex flex-col gap-6 mt-8 relative z-10">
-      <div class="flex items-center gap-3 flex-wrap">
-        <span class="text-black mr-4 font-bold text-sm flex items-center gap-2">
+    <div class="{query.length === 0 ? 'hidden' : 'flex'} md:flex flex-col gap-6 mt-8 relative z-10">
+      <div class="flex items-center gap-3 flex-wrap pb-4">
+        <span class="text-black mr-4 font-bold text-sm flex items-center gap-2 flex-shrink-0">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
@@ -861,8 +639,8 @@ onMount(() => {
           <button class="bg-transparent border-0 text-black/70 cursor-pointer underline transition-all duration-300 hover:text-black hover:scale-105 font-medium text-sm" on:click={clearHistory}>清空历史</button>
         {/if}
       </div>
-      <div class="flex items-center gap-3 flex-wrap">
-        <span class="text-black mr-4 font-bold text-sm flex items-center gap-2">
+      <div class="flex items-center gap-3 flex-wrap pb-4">
+        <span class="text-black mr-4 font-bold text-sm flex items-center gap-2 flex-shrink-0">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
           </svg>
@@ -902,9 +680,9 @@ onMount(() => {
   </div>
 
   <!-- 主内容区域 -->
-  <div class="flex gap-3 w-full px-2">
+  <div class="flex flex-col md:flex-row gap-3 w-full px-2">
     <!-- 左侧筛选栏 -->
-    <aside class="w-64 flex-shrink-0 {!showMobileFilters ? 'hidden md:block' : 'block'}">
+    <aside class="w-full md:w-64 flex-shrink-0 {!showMobileFilters ? 'hidden md:block' : 'block'}">
 
       <!-- 筛选器 -->
       <div class="bg-white rounded-2xl shadow-lg p-6 sticky top-6">
@@ -1128,117 +906,24 @@ onMount(() => {
 
       <!-- 搜索结果 -->
       <section>
-        <div class="flex justify-between items-center mb-6 bg-white rounded-2xl shadow-lg p-4">
-          <div class="flex items-center gap-4">
+        <div class="flex flex-wrap sm:flex-nowrap justify-between items-center gap-4 mb-6 bg-white rounded-2xl shadow-lg p-4">
+          <div class="flex items-center gap-4 flex-shrink-0">
             <span class="text-slate-700">共 <strong class="text-slate-900">{total}</strong> 条结果</span>
             {#if elapsedMs > 0}
               <span class="text-slate-500 text-sm">耗时 {elapsedMs}ms</span>
             {/if}
-            <!-- 动画控制按钮 -->
-            <button 
-              class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
-              on:click={() => showAnimationControls = !showAnimationControls}
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h1m4 0h1m-6-8h1m4 0h1M9 6h1m4 0h1M9 2h1m4 0h1"></path>
-              </svg>
-              动画设置
-            </button>
+
           </div>
-          <div class="flex items-center gap-3">
-            <button class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled={isSearching || page<=1} on:click={() => goToPage(page-1)}>上一页</button>
-            <span class="text-sm text-slate-600 px-3">第 {page} / {totalPages()} 页</span>
-            <button class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled={isSearching || page>=totalPages()} on:click={() => goToPage(page+1)}>下一页</button>
+          <div class="flex items-center gap-3 overflow-x-auto w-full sm:w-auto justify-end">
+            <button class="flex-shrink-0 px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled={isSearching || page<=1} on:click={() => goToPage(page-1)}>上一页</button>
+            <span class="flex-shrink-0 text-sm text-slate-600 px-3">第 {page} / {totalPages()} 页</span>
+            <button class="flex-shrink-0 px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled={isSearching || page>=totalPages()} on:click={() => goToPage(page+1)}>下一页</button>
           </div>
         </div>
 
-        <!-- 动画控制面板 -->
-        {#if showAnimationControls}
-          <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl shadow-lg p-6 mb-6 border border-blue-100 animate-fade-in">
-            <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
-              </svg>
-              文本动画控制
-            </h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <!-- 启用/禁用动画 -->
-              <div class="flex items-center gap-3">
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    bind:checked={enableTextAnimation}
-                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                  />
-                  <span class="text-sm font-medium text-slate-700">启用文本动画</span>
-                </label>
-              </div>
-              
-              <!-- 动画速度控制 -->
-               <div class="flex flex-col gap-2">
-                 <label for="speed-slider" class="text-sm font-medium text-slate-700">动画速度</label>
-                 <div class="flex items-center gap-3">
-                   <input 
-                     id="speed-slider"
-                     type="range" 
-                     min="10" 
-                     max="200" 
-                     step="10"
-                     bind:value={typewriterSpeed}
-                     disabled={!enableTextAnimation}
-                     class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-                   />
-                   <span class="text-sm text-slate-600 min-w-[60px]">{typewriterSpeed}ms</span>
-                 </div>
-                 <div class="flex justify-between text-xs text-slate-500">
-                   <span>快速</span>
-                   <span>慢速</span>
-                 </div>
-               </div>
-               
-               <!-- 预设速度按钮 -->
-               <div class="flex flex-col gap-2">
-                 <span class="text-sm font-medium text-slate-700">快速设置</span>
-                <div class="flex gap-2">
-                  <button 
-                    class="px-3 py-1.5 text-xs font-medium bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition-colors disabled:opacity-50"
-                    disabled={!enableTextAnimation}
-                    on:click={() => typewriterSpeed = 20}
-                  >
-                    极快
-                  </button>
-                  <button 
-                    class="px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 transition-colors disabled:opacity-50"
-                    disabled={!enableTextAnimation}
-                    on:click={() => typewriterSpeed = 50}
-                  >
-                    正常
-                  </button>
-                  <button 
-                    class="px-3 py-1.5 text-xs font-medium bg-orange-100 text-orange-800 rounded-lg hover:bg-orange-200 transition-colors disabled:opacity-50"
-                    disabled={!enableTextAnimation}
-                    on:click={() => typewriterSpeed = 100}
-                  >
-                    慢速
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <!-- 说明文字 -->
-            <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <p class="text-sm text-blue-800">
-                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                启用文本动画后，搜索结果中的文本内容将以打字机效果逐字显示。调整速度可以控制文字出现的快慢。
-              </p>
-            </div>
-          </div>
-        {/if}
 
-        <div class="space-y-4">
+
+        <div class="space-y-4 results-container">
           {#if results.length === 0 && !isSearching}
             <div class="bg-white rounded-2xl shadow-lg p-12 text-center">
               <div class="text-slate-400 text-lg">暂无数据，请输入关键字进行搜索。</div>
@@ -1255,16 +940,7 @@ onMount(() => {
                 {/if}
               </div>
               <div class="text-slate-700 leading-relaxed mb-4" aria-label="消息内容">
-                {#if enableTextAnimation}
-                  <TypewriterText 
-                    content={highlight(item.content, query)} 
-                    speed={typewriterSpeed}
-                    showCursor={true}
-                    autoStart={true}
-                  />
-                {:else}
-                  {@html highlight(item.content, query)}
-                {/if}
+                {@html highlight(item.content, query)}
               </div>
               <div class="flex flex-wrap gap-3">
                 {#if item.type === 'group' || item.type === 'channel'}
@@ -1298,114 +974,12 @@ onMount(() => {
 />
 
 <style>
+  .results-container {
+    overflow-y: auto;
+  }
+
   :global(a) { color: inherit; text-decoration: none; }
 
-  /* ===================== 搜索主题动画效果 ===================== */
-  
-  /* 搜索粒子动画 */
-  @keyframes search-particle-1 {
-    0%, 100% { 
-      transform: translate(0, 0) scale(1);
-      opacity: 0.2;
-    }
-    25% { 
-      transform: translate(20px, -30px) scale(1.2);
-      opacity: 0.6;
-    }
-    50% { 
-      transform: translate(-15px, -60px) scale(0.8);
-      opacity: 0.4;
-    }
-    75% { 
-      transform: translate(30px, -40px) scale(1.1);
-      opacity: 0.7;
-    }
-  }
-  
-  @keyframes search-particle-2 {
-    0%, 100% { 
-      transform: translate(0, 0) rotate(0deg) scale(1);
-      opacity: 0.3;
-    }
-    33% { 
-      transform: translate(-25px, 20px) rotate(120deg) scale(1.3);
-      opacity: 0.8;
-    }
-    66% { 
-      transform: translate(15px, -25px) rotate(240deg) scale(0.7);
-      opacity: 0.5;
-    }
-  }
-  
-  /* 搜索粒子动画 - 已移除 */
-  
-  /* 数据库相关动画 - 已移除 */
-  
-  /* 小图标向数据库移动的动画 - 已移除 */
-  
-  /* 数据库动画类 - 已移除 */
-  /* 往数据库移动的动画类 - 已移除 */
-  
-  @keyframes search-ripple-3 {
-    0% {
-      transform: translate(-50%, -50%) scale(0.9);
-      opacity: 0.3;
-    }
-    50% {
-      transform: translate(-50%, -50%) scale(1.3);
-      opacity: 0.7;
-    }
-    100% {
-      transform: translate(-50%, -50%) scale(0.8);
-      opacity: 0.1;
-    }
-  }
-  
-  /* 搜索涟漪动画类已移除 - 未使用 */
-  
-  /* 数据流动效果 */
-  @keyframes data-flow-1 {
-    0% {
-      transform: translateY(-100%);
-      opacity: 0;
-    }
-    50% {
-      opacity: 1;
-    }
-    100% {
-      transform: translateY(200vh);
-      opacity: 0;
-    }
-  }
-  
-  @keyframes data-flow-2 {
-    0% {
-      transform: translateY(100vh);
-      opacity: 0;
-    }
-    50% {
-      opacity: 1;
-    }
-    100% {
-      transform: translateY(-100%);
-      opacity: 0;
-    }
-  }
-  
-  @keyframes data-flow-3 {
-    0% {
-      transform: translateY(-50%);
-      opacity: 0;
-    }
-    50% {
-      opacity: 1;
-    }
-    100% {
-      transform: translateY(150vh);
-      opacity: 0;
-    }
-  }
-  
   /* 数据流动动画类已移除 - 未使用 */
   
   /* 搜索主题光晕效果 */

@@ -17,8 +17,12 @@
   import { page } from '$app/stores';
   import { base } from '$app/paths';
   
-  let tg;
   let user = null;
+  let isMobileMenuOpen = false;
+
+  function toggleMobileMenu() {
+    isMobileMenuOpen = !isMobileMenuOpen;
+  }
 
   /**
    * 当前页面路径
@@ -45,18 +49,12 @@
     }
 
     if (window.Telegram && window.Telegram.WebApp) {
-      tg = window.Telegram.WebApp;
+      const tg = window.Telegram.WebApp;
       if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
         user = tg.initDataUnsafe.user;
       }
     }
   });
-
-  function expandApp() {
-    if (tg) {
-      tg.expand();
-    }
-  }
 </script>
 
 <!--
@@ -107,19 +105,15 @@
         <!-- 登录按钮和用户菜单 -->
         <div class="flex items-center gap-3">
           <!-- 移动端菜单按钮 -->
-          <button class="md:hidden p-2 text-slate-600 hover:text-blue-600 transition-colors" aria-label="打开移动端菜单">
+          <button on:click={toggleMobileMenu} class="md:hidden p-2 text-slate-600 hover:text-blue-600 transition-colors" aria-label="打开移动端菜单">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
           </button>
           
-          <button on:click={expandApp} class="bg-blue-500 text-white p-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300">
-            展开
-          </button>
-
           <!-- 登录按钮 -->
           {#if user}
-            <span class="text-slate-800 font-medium">{user.first_name || user.username}</span>
+            <span class="text-slate-800 font-medium">{user.first_name} {user.last_name || ''}</span>
           {:else}
             <a href="{base}/login" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300">
               登录
@@ -128,6 +122,16 @@
         </div>
       </div>
     </nav>
+
+    <!-- 移动端菜单 -->
+    {#if isMobileMenuOpen}
+      <div class="absolute left-0 right-0 bg-white shadow-lg md:hidden px-4 pt-2 pb-4 space-y-2 z-50">
+        <a href="{base}/" on:click={() => isMobileMenuOpen = false} class="block nav-link {currentPath === `${base}/` ? 'nav-active' : ''}">首页</a>
+        <a href="{base}/daily-stats" on:click={() => isMobileMenuOpen = false} class="block nav-link {currentPath === `${base}/daily-stats` ? 'nav-active' : ''}">每日动态</a>
+        <a href="{base}/daily-new" on:click={() => isMobileMenuOpen = false} class="block nav-link {currentPath === `${base}/daily-new` ? 'nav-active' : ''}">每日新增</a>
+        <a href="{base}/bots" on:click={() => isMobileMenuOpen = false} class="block nav-link {currentPath === `${base}/bots` ? 'nav-active' : ''}">机器人管理</a>
+      </div>
+    {/if}
   </header>
   
   <!-- 主内容区域 -->
