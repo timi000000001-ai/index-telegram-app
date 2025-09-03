@@ -18,6 +18,7 @@
   import { base } from '$app/paths';
   
   let tg;
+  let user = null;
 
   /**
    * 当前页面路径
@@ -43,7 +44,12 @@
       document.head.appendChild(favicon);
     }
 
-    tg = window.Telegram.WebApp;
+    if (window.Telegram && window.Telegram.WebApp) {
+      tg = window.Telegram.WebApp;
+      if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        user = tg.initDataUnsafe.user;
+      }
+    }
   });
 
   function expandApp() {
@@ -112,9 +118,13 @@
           </button>
 
           <!-- 登录按钮 -->
-          <a href="{base}/login" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300">
-            登录
-          </a>
+          {#if user}
+            <span class="text-slate-800 font-medium">{user.first_name || user.username}</span>
+          {:else}
+            <a href="{base}/login" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300">
+              登录
+            </a>
+          {/if}
         </div>
       </div>
     </nav>
