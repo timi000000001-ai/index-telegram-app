@@ -6,7 +6,8 @@
     "isEntry": true,
     "imports": [
       "_internal.js",
-      "_environment.js"
+      "_environment.js",
+      "_paths.js"
     ]
   },
   "_environment.js": {
@@ -40,8 +41,13 @@
     "name": "internal",
     "imports": [
       "_index.js",
-      "_environment.js"
+      "_environment.js",
+      "_paths.js"
     ]
+  },
+  "_paths.js": {
+    "file": "chunks/paths.js",
+    "name": "paths"
   },
   "_shared.js": {
     "file": "chunks/shared.js",
@@ -69,6 +75,7 @@
     "imports": [
       "_shared.js",
       "_false.js",
+      "_paths.js",
       "_environment.js"
     ]
   },
@@ -92,13 +99,19 @@
     "isEntry": true,
     "imports": [
       "_false.js",
-      "_environment.js",
+      "_paths.js",
       "_exports.js",
       "_utils.js",
       "_index2.js",
       "_internal.js",
       "_shared.js"
     ]
+  },
+  "src/routes/+layout.js": {
+    "file": "entries/pages/_layout.js",
+    "name": "entries/pages/_layout",
+    "src": "src/routes/+layout.js",
+    "isEntry": true
   },
   "src/routes/+layout.svelte": {
     "file": "entries/pages/_layout.svelte.js",
@@ -109,10 +122,11 @@
       "_index.js",
       "_exports.js",
       "_utils.js",
-      "_state.svelte.js"
+      "_state.svelte.js",
+      "_paths.js"
     ],
     "css": [
-      "_app/immutable/assets/_layout.CyuQ73mg.css"
+      "_app/immutable/assets/_layout.DzIOqvja.css"
     ]
   },
   "src/routes/+page.svelte": {
@@ -124,7 +138,7 @@
       "_index.js"
     ],
     "css": [
-      "_app/immutable/assets/_page.dp4aHJAA.css"
+      "_app/immutable/assets/_page.Bp6OgnQf.css"
     ]
   },
   "src/routes/api/bot/status/+server.js": {
@@ -193,7 +207,7 @@
       "_index.js"
     ],
     "css": [
-      "_app/immutable/assets/_page.B-gprUhR.css"
+      "_app/immutable/assets/_page.BSOiTLKb.css"
     ]
   },
   "src/routes/daily-stats/+page.svelte": {
@@ -205,7 +219,7 @@
       "_index.js"
     ],
     "css": [
-      "_app/immutable/assets/_page.Df8LXcIf.css"
+      "_app/immutable/assets/_page.PQP-262y.css"
     ]
   },
   "src/routes/login/+page.svelte": {

@@ -6,11 +6,11 @@ function __memo(fn) {
 
 return {
 	appDir: "_app",
-	appPath: "_app",
+	appPath: "index-telegram-app/_app",
 	assets: new Set(["robots.txt"]),
 	mimeTypes: {".txt":"text/plain"},
 	_: {
-		client: {start:"_app/immutable/entry/start.CsKQ93LY.js",app:"_app/immutable/entry/app.CQYSYtZr.js",imports:["_app/immutable/entry/start.CsKQ93LY.js","_app/immutable/chunks/Dmm1jFPB.js","_app/immutable/chunks/vk1Hrpyt.js","_app/immutable/chunks/0-kjiHYL.js","_app/immutable/entry/app.CQYSYtZr.js","_app/immutable/chunks/vk1Hrpyt.js","_app/immutable/chunks/Cm9PB-7n.js","_app/immutable/chunks/BGXLXVlW.js","_app/immutable/chunks/BIuud_EK.js","_app/immutable/chunks/DliHbt_6.js","_app/immutable/chunks/0-kjiHYL.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
+		client: {start:"_app/immutable/entry/start.DaGeRRIZ.js",app:"_app/immutable/entry/app.f6R-kpNR.js",imports:["_app/immutable/entry/start.DaGeRRIZ.js","_app/immutable/chunks/f_3be0LC.js","_app/immutable/chunks/BnjqhL1k.js","_app/immutable/chunks/DvxUEipc.js","_app/immutable/entry/app.f6R-kpNR.js","_app/immutable/chunks/BnjqhL1k.js","_app/immutable/chunks/Cm9PB-7n.js","_app/immutable/chunks/D7lVvpcI.js","_app/immutable/chunks/DwZet_xJ.js","_app/immutable/chunks/BYfX5H5R.js","_app/immutable/chunks/DvxUEipc.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
 		nodes: [
 			__memo(() => import('./nodes/0.js')),
 			__memo(() => import('./nodes/1.js')),

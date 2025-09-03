@@ -6,31 +6,19 @@ function __memo(fn) {
 
 return {
 	appDir: "_app",
-	appPath: "_app",
+	appPath: "index-telegram-app/_app",
 	assets: new Set(["robots.txt"]),
 	mimeTypes: {".txt":"text/plain"},
 	_: {
-		client: {start:"_app/immutable/entry/start.CsKQ93LY.js",app:"_app/immutable/entry/app.CQYSYtZr.js",imports:["_app/immutable/entry/start.CsKQ93LY.js","_app/immutable/chunks/Dmm1jFPB.js","_app/immutable/chunks/vk1Hrpyt.js","_app/immutable/chunks/0-kjiHYL.js","_app/immutable/entry/app.CQYSYtZr.js","_app/immutable/chunks/vk1Hrpyt.js","_app/immutable/chunks/Cm9PB-7n.js","_app/immutable/chunks/BGXLXVlW.js","_app/immutable/chunks/BIuud_EK.js","_app/immutable/chunks/DliHbt_6.js","_app/immutable/chunks/0-kjiHYL.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
+		client: {start:"_app/immutable/entry/start.DaGeRRIZ.js",app:"_app/immutable/entry/app.f6R-kpNR.js",imports:["_app/immutable/entry/start.DaGeRRIZ.js","_app/immutable/chunks/f_3be0LC.js","_app/immutable/chunks/BnjqhL1k.js","_app/immutable/chunks/DvxUEipc.js","_app/immutable/entry/app.f6R-kpNR.js","_app/immutable/chunks/BnjqhL1k.js","_app/immutable/chunks/Cm9PB-7n.js","_app/immutable/chunks/D7lVvpcI.js","_app/immutable/chunks/DwZet_xJ.js","_app/immutable/chunks/BYfX5H5R.js","_app/immutable/chunks/DvxUEipc.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
 		nodes: [
 			__memo(() => import('./nodes/0.js')),
-			__memo(() => import('./nodes/1.js')),
-			__memo(() => import('./nodes/2.js')),
-			__memo(() => import('./nodes/3.js')),
-			__memo(() => import('./nodes/4.js')),
-			__memo(() => import('./nodes/5.js')),
-			__memo(() => import('./nodes/6.js'))
+			__memo(() => import('./nodes/1.js'))
 		],
 		remotes: {
 			
 		},
 		routes: [
-			{
-				id: "/",
-				pattern: /^\/$/,
-				params: [],
-				page: { layouts: [0,], errors: [1,], leaf: 2 },
-				endpoint: null
-			},
 			{
 				id: "/api/bots/status",
 				pattern: /^\/api\/bots\/status\/?$/,
@@ -86,37 +74,9 @@ return {
 				params: [],
 				page: null,
 				endpoint: __memo(() => import('./entries/endpoints/api/verify/_server.js'))
-			},
-			{
-				id: "/bots",
-				pattern: /^\/bots\/?$/,
-				params: [],
-				page: { layouts: [0,], errors: [1,], leaf: 3 },
-				endpoint: null
-			},
-			{
-				id: "/daily-new",
-				pattern: /^\/daily-new\/?$/,
-				params: [],
-				page: { layouts: [0,], errors: [1,], leaf: 4 },
-				endpoint: null
-			},
-			{
-				id: "/daily-stats",
-				pattern: /^\/daily-stats\/?$/,
-				params: [],
-				page: { layouts: [0,], errors: [1,], leaf: 5 },
-				endpoint: null
-			},
-			{
-				id: "/login",
-				pattern: /^\/login\/?$/,
-				params: [],
-				page: { layouts: [0,], errors: [1,], leaf: 6 },
-				endpoint: null
 			}
 		],
-		prerendered_routes: new Set([]),
+		prerendered_routes: new Set(["/index-telegram-app/","/index-telegram-app/bots","/index-telegram-app/daily-new","/index-telegram-app/daily-stats","/index-telegram-app/login"]),
 		matchers: async () => {
 			
 			return {  };

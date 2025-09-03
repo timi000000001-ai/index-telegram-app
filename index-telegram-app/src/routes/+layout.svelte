@@ -17,6 +17,8 @@
   import { page } from '$app/stores';
   import { base } from '$app/paths';
   
+  let tg;
+
   /**
    * 当前页面路径
    * @description 用于导航菜单的选中状态判断
@@ -40,7 +42,15 @@
     if (!document.querySelector('link[rel="icon"]')) {
       document.head.appendChild(favicon);
     }
+
+    tg = window.Telegram.WebApp;
   });
+
+  function expandApp() {
+    if (tg) {
+      tg.expand();
+    }
+  }
 </script>
 
 <!--
@@ -97,6 +107,10 @@
             </svg>
           </button>
           
+          <button on:click={expandApp} class="bg-blue-500 text-white p-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300">
+            展开
+          </button>
+
           <!-- 登录按钮 -->
           <a href="{base}/login" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300">
             登录
