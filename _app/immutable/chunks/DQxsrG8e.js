@@ -1,0 +1,1 @@
+async function t(t,a={}){try{const r=await fetch(t,{headers:{"Content-Type":"application/json",...a.headers||{}},...a});if(!r.ok)throw new Error(`HTTP error! status: ${r.status}`);return await r.json()}catch(r){throw r}}export{t as a};
