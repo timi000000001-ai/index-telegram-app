@@ -30,7 +30,7 @@
 
 - **TRX & USDT (TRC20):** `TD5JGaR7cY5ZxDnZNgmCSv66axR9DhrcYz`
 
-![赞助二维码] <img width="512" height="530" alt="image" src="https://github.com/user-attachments/assets/08a5cf87-e174-4bf5-ae2d-1ed676c7b90e" />
+ <img width="512" height="530" alt="image" src="https://github.com/user-attachments/assets/08a5cf87-e174-4bf5-ae2d-1ed676c7b90e" />
 
 
 ## 许可证
