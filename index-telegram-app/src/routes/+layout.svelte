@@ -15,6 +15,7 @@
   import '../app.css';
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
+  import { base } from '$app/paths';
   
   /**
    * 当前页面路径
@@ -58,30 +59,30 @@
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
             </svg>
           </div>
-          <a href="/" class="text-xl font-bold text-slate-800 hover:text-blue-600 transition-colors">
+          <a href="{base}/" class="text-xl font-bold text-slate-800 hover:text-blue-600 transition-colors">
             Telegram搜索
           </a>
         </div>
         
         <!-- 导航菜单 -->
          <div class="hidden md:flex items-center gap-6">
-           <a href="/" 
-              class="nav-link {currentPath === '/' ? 'nav-active' : ''}"
+           <a href="{base}/" 
+              class="nav-link {currentPath === `${base}/` ? 'nav-active' : ''}"
               data-text="首页">
              首页
            </a>
-           <a href="/daily-stats" 
-              class="nav-link {currentPath === '/daily-stats' ? 'nav-active' : ''}"
+           <a href="{base}/daily-stats" 
+              class="nav-link {currentPath === `${base}/daily-stats` ? 'nav-active' : ''}"
               data-text="每日动态">
              每日动态
            </a>
-           <a href="/daily-new" 
-              class="nav-link {currentPath === '/daily-new' ? 'nav-active' : ''}"
+           <a href="{base}/daily-new" 
+              class="nav-link {currentPath === `${base}/daily-new` ? 'nav-active' : ''}"
               data-text="每日新增">
              每日新增
            </a>
-           <a href="/bots" 
-              class="nav-link {currentPath === '/bots' ? 'nav-active' : ''}"
+           <a href="{base}/bots" 
+              class="nav-link {currentPath === `${base}/bots` ? 'nav-active' : ''}"
               data-text="机器人管理">
              机器人管理
            </a>
@@ -97,7 +98,7 @@
           </button>
           
           <!-- 登录按钮 -->
-          <a href="/login" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300">
+          <a href="{base}/login" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-300">
             登录
           </a>
         </div>
