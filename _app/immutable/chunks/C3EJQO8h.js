@@ -1,1 +1,0 @@
-import{t}from"./ChOSHGqm.js";import{J as e}from"./Dcj_b-T1.js";function s(s,r,l,o){var i=s.__style;if(e||i!==r){var a=t(r);e&&a===s.getAttribute("style")||(null==a?s.removeAttribute("style"):s.style.cssText=a),s.__style=r}return o}export{s};
