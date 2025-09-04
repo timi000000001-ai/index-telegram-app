@@ -14,6 +14,7 @@ import { searchAPI, botAPI, userAPI } from '$lib/api.js';
 import GroupModal from '$lib/components/GroupModal.svelte';
 
 import CollectionModal from '$lib/components/CollectionModal.svelte';
+import DisclaimerModal from '$lib/components/DisclaimerModal.svelte';
 
 // ===================== 状态管理 =====================
 /** @type {string} 搜索关键字 */
@@ -152,8 +153,8 @@ async function search() {
   try {
     const params = {
       q: query.trim(),
-      page,
-      limit: size,
+      page: String(page),
+      limit: String(size),
       sort,
       filter: filters.type || 'all',
     };
@@ -466,17 +467,28 @@ function clearHistory() {
   histories = [];
 }
 
+  let showDisclaimerModal = false;
+
+  function openDisclaimerModal() {
+    showDisclaimerModal = true;
+  }
+
+  function closeDisclaimerModal() {
+    showDisclaimerModal = false;
+  }
+
 // ===================== 生命周期 =====================
 onMount(() => {
   loadHistory();
   fetchTrending();
-  search("bots");
+  search();
 });
 
 
 </script>
 
 <!-- ===================== 页面结构 ===================== -->
+
 <div class="w-full p-2 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 relative overflow-hidden">
   
   <!-- 主搜索区域 -->
@@ -936,103 +948,10 @@ onMount(() => {
 <!-- 收录弹窗组件 -->
 <CollectionModal 
   bind:show={showCollectionModal} 
-  on:close={() => showCollectionModal = false} 
+  on:close={() => showCollectionModal = false}
 />
 
-<style>
-  .results-container {
-    overflow-y: auto;
-  }
 
-  :global(a) { color: inherit; text-decoration: none; }
-
-  /* 数据流动动画类已移除 - 未使用 */
-  
-  /* 搜索主题光晕效果 */
-  @keyframes search-glow {
-    0%, 100% {
-      transform: rotate(0deg) scale(1);
-      opacity: 0.3;
-    }
-    50% {
-      transform: rotate(180deg) scale(1.2);
-      opacity: 0.7;
-    }
-  }
-  
-  @keyframes search-glow-reverse {
-    0%, 100% {
-      transform: rotate(360deg) scale(0.8);
-      opacity: 0.2;
-    }
-    50% {
-      transform: rotate(180deg) scale(1.1);
-      opacity: 0.6;
-    }
-  }
-  
-  /* ===================== 原有动画效果 ===================== */
-
-  /* 输入框聚焦时的特殊效果 */
-  input:focus {
-    background-image: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.95) 100%);
-  }
-
-  /* 按钮悬停时的特殊效果 */
-  button:hover {
-    filter: brightness(1.05) saturate(1.1);
-  }
-
-  /* 搜索建议淡入动画 */
-  @keyframes fade-in {
-    0% {
-      opacity: 0;
-      transform: translateY(-10px) scale(0.95);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  .animate-fade-in {
-    animation: fade-in 0.3s ease-out;
-  }
-  
-  /* 滑块样式 */
-  .slider::-webkit-slider-thumb {
-    appearance: none;
-    height: 20px;
-    width: 20px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
-    transition: all 0.2s ease;
-  }
-  
-  .slider::-webkit-slider-thumb:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-  }
-  
-  .slider::-webkit-slider-track {
-    height: 8px;
-    border-radius: 4px;
-    background: linear-gradient(90deg, #e2e8f0, #cbd5e1);
-  }
-  
-  .slider:disabled::-webkit-slider-thumb {
-    background: #94a3b8;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-  
-  .slider:disabled::-webkit-slider-track {
-    background: #f1f5f9;
-  }
-</style>
 
 <!--
   关键算法说明：
@@ -1044,3 +963,9 @@ onMount(() => {
   兼容性说明：
   - 客户端渲染，localStorage 仅在浏览器环境访问；样式兼容现代浏览器
 -->
+
+
+
+
+
+<DisclaimerModal bind:show={showDisclaimerModal} on:close={closeDisclaimerModal} />

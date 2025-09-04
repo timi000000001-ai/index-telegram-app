@@ -139,10 +139,7 @@
     <slot />
   </main>
   
-  <!-- 全局页脚 -->
-  <footer class="mt-auto py-6 text-center text-slate-500 text-sm">
-    <p>© 2024 Telegram搜索平台 - 高效搜索，精准定位</p>
-  </footer>
+
 </div>
 
 <!--
