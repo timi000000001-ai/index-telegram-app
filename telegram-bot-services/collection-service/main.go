@@ -11,15 +11,14 @@
 package main
 
 import (
+	"collection-service/internal/config"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"strconv"
-	"time"
 
-	"github.com/joho/godotenv"
+	"os"
+	"time"
 
 	"collection-service/service"
 )
@@ -180,50 +179,19 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 // @date 2023-11-15
 // @version 1.0.0
 // @return error 错误信息
-func initServices() error {
-	// 加载环境变量
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Warning: Error loading .env file: %v", err)
-	}
+func initServices(cfg *config.Config) error {
+	// 初始化服务
 
-	// 获取API ID和Hash
-	apiIDStr := os.Getenv("TELEGRAM_API_ID")
-	apiHash := os.Getenv("TELEGRAM_API_HASH")
-	pocketbaseURL := os.Getenv("POCKETBASE_URL")
-	meilisearchURL := os.Getenv("MEILISEARCH_URL")
-	meilisearchToken := os.Getenv("MEILISEARCH_TOKEN")
-
-	// 验证必要的环境变量
-	if apiIDStr == "" || apiHash == "" || pocketbaseURL == "" || meilisearchURL == "" {
-		return fmt.Errorf("missing required environment variables")
-	}
-
-	// 转换API ID为整数
-	apiID, err := strconv.Atoi(apiIDStr)
-	if err != nil {
-		return fmt.Errorf("invalid API ID: %v", err)
-	}
-
-	// 创建存储服务
-	storageService = service.NewStorageService(service.StorageConfig{
-		PocketBaseURL:    pocketbaseURL,
-		MeilisearchURL:   meilisearchURL,
-		MeilisearchToken: meilisearchToken,
-	})
-
-	// 创建会话服务
+	storageService = service.NewStorageService(service.StorageConfig{PocketBaseURL: cfg.Storage.PocketBaseURL})
 	sessionService = service.NewSessionService()
-
-	// 创建Telegram服务
 	telegramService = service.NewTelegramService(service.TelegramConfig{
-		APIID:   apiID,
-		APIHash: apiHash,
+		AppID:   cfg.Telegram.AppID,
+		AppHash: cfg.Telegram.AppHash,
 	}, storageService)
-
-	// 创建采集服务
-	collectionService = service.NewCollectionService(service.CollectionConfig{
-		CollectionInterval: 5 * time.Minute,
-		MessageLimit:       100,
+	collectionService = service.NewCollectionService(service.SearchConfig{
+		MeilisearchURL:  cfg.Search.MeilisearchURL,
+		MeilisearchToken: cfg.Search.MeilisearchToken,
+		MessageLimit:    cfg.Search.MessageLimit,
 	}, telegramService, sessionService)
 
 	return nil
@@ -234,8 +202,20 @@ func initServices() error {
 // @date 2023-11-15
 // @version 1.0.0
 func main() {
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "development"
+	}
+
+	cfg, err := config.Load(env)
+	if err != nil {
+		log.Fatalf("Failed to load config: %v", err)
+	}
+
+
+
 	// 初始化服务
-	if err := initServices(); err != nil {
+	if err := initServices(cfg); err != nil {
 		log.Fatalf("Failed to initialize services: %v", err)
 	}
 
@@ -251,13 +231,9 @@ func main() {
 	}
 
 	// 启动HTTP服务器
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8082"
-	}
-
-	log.Printf("Starting collection service on port %s", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	addr := fmt.Sprintf(":%s", cfg.Server.Port)
+	log.Printf("Starting collection service on port %s", cfg.Server.Port)
+	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }

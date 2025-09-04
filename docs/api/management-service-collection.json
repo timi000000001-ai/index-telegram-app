@@ -1,0 +1,150 @@
+{
+  "info": {
+    "_postman_id": "b2c3d4e5-f6g7-h8i9-j0k1-l2m3n4o5p6q7",
+    "name": "管理服务 API",
+    "description": "提供数据搜索、机器人管理和用户相关功能。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "搜索接口",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{management_service_url}}/api/search?q={{query}}&page={{page}}&limit={{limit}}&filter={{filter}}",
+          "host": ["{{management_service_url}}"],
+          "path": ["api", "search"],
+          "query": [
+            {"key": "q", "value": "{{query}}", "description": "搜索查询关键词"},
+            {"key": "page", "value": "{{page}}", "description": "页码，从1开始"},
+            {"key": "limit", "value": "{{limit}}", "description": "每页结果数量"},
+            {"key": "filter", "value": "{{filter}}", "description": "过滤类型：group(群组)、channel(频道)、bot(机器人)或all(全部)"}
+          ]
+        },
+        "description": "搜索接口，支持分页和过滤功能。"
+      },
+      "response": []
+    },
+    {
+      "name": "获取搜索建议",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{management_service_url}}/api/search/suggestions?q={{query}}",
+          "host": ["{{management_service_url}}"],
+          "path": ["api", "search", "suggestions"],
+          "query": [
+            {"key": "q", "value": "{{query}}", "description": "搜索查询关键词"}
+          ]
+        },
+        "description": "根据用户输入提供搜索建议。"
+      },
+      "response": []
+    },
+    {
+      "name": "获取热门搜索",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{management_service_url}}/api/search/trending",
+          "host": ["{{management_service_url}}"],
+          "path": ["api", "search", "trending"]
+        },
+        "description": "获取当前的热门搜索词条。"
+      },
+      "response": []
+    },
+    {
+      "name": "获取用户个人信息",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{management_service_url}}/api/user/profile",
+          "host": ["{{management_service_url}}"],
+          "path": ["api", "user", "profile"]
+        },
+        "description": "获取当前登录用户的个人信息。"
+      },
+      "response": []
+    },
+    {
+      "name": "获取机器人状态列表",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{management_service_url}}/api/bots/status",
+          "host": ["{{management_service_url}}"],
+          "path": ["api", "bots", "status"]
+        },
+        "description": "获取所有机器人的状态列表。"
+      },
+      "response": []
+    },
+    {
+      "name": "获取机器人列表",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{management_service_url}}/api/bots",
+          "host": ["{{management_service_url}}"],
+          "path": ["api", "bots"]
+        },
+        "description": "获取所有机器人的列表。"
+      },
+      "response": []
+    },
+    {
+      "name": "获取机器人详情",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{management_service_url}}/api/bots/{{botId}}",
+          "host": ["{{management_service_url}}"],
+          "path": ["api", "bots", "{{botId}}"]
+        },
+        "description": "获取单个机器人的详细信息。"
+      },
+      "response": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "key": "management_service_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "botId",
+      "value": "YOUR_BOT_ID",
+      "type": "string"
+    },
+    {
+      "key": "query",
+      "value": "example",
+      "type": "string"
+    },
+    {
+      "key": "page",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "limit",
+      "value": "5",
+      "type": "string"
+    },
+    {
+      "key": "filter",
+      "value": "all",
+      "type": "string"
+    }
+  ]
+}

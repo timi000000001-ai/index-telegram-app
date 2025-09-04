@@ -1,0 +1,15 @@
+{
+  "server": {
+    "port": "8081"
+  },
+  "storage": {
+    "pocketBaseURL": "http://127.0.0.1:8090/",
+    "meilisearchURL": "http://127.0.0.1:7700",
+    "meilisearchToken": "timigogogo"
+  },
+  "search": {
+    "meilisearchURL": "http://127.0.0.1:7700",
+    "meilisearchKey": "timigogogo",
+    "managementServiceURL": "http://127.0.0.1:8080"
+  }
+}

@@ -20,9 +20,10 @@ import (
 // @author fcj
 // @date 2023-11-15
 // @version 1.0.0
-type CollectionConfig struct {
-    CollectionInterval time.Duration
-    MessageLimit       int
+type SearchConfig struct {
+    MeilisearchURL  string `json:"meilisearch_url"`
+    MeilisearchToken string `json:"meilisearch_token"`
+    MessageLimit     int    `json:"message_limit"`
 }
 
 // CollectionService 定义消息采集服务接口
@@ -51,9 +52,10 @@ type CollectionService interface {
 // @date 2023-11-15
 // @version 1.0.0
 type collectionServiceImpl struct {
-    config          CollectionConfig
+    config          SearchConfig
     telegramService TelegramService
     sessionService  SessionService
+    messageLimit    int
     ticker          *time.Ticker
     stopChan        chan struct{}
     isRunning       bool
@@ -67,11 +69,12 @@ type collectionServiceImpl struct {
 // @param telegramService Telegram客户端服务
 // @param sessionService 会话管理服务
 // @return CollectionService 消息采集服务实例
-func NewCollectionService(config CollectionConfig, telegramService TelegramService, sessionService SessionService) CollectionService {
+func NewCollectionService(config SearchConfig, telegramService TelegramService, sessionService SessionService) CollectionService {
     return &collectionServiceImpl{
         config:          config,
         telegramService: telegramService,
         sessionService:  sessionService,
+        messageLimit:    config.MessageLimit,
         stopChan:        make(chan struct{}),
         isRunning:       false,
     }
@@ -119,7 +122,7 @@ func (c *collectionServiceImpl) CollectFromChat(phoneNumber string, chatID int64
     }
     
     // 采集消息
-    return c.telegramService.CollectMessages(phoneNumber, chatID, c.config.MessageLimit)
+    return c.telegramService.CollectMessages(phoneNumber, chatID, c.messageLimit)
 }
 
 // CollectFromAllChats 从所有配置的群组采集消息

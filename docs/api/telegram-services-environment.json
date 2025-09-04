@@ -27,6 +27,12 @@
       "enabled": true
     },
     {
+      "key": "botId",
+      "value": "YOUR_BOT_ID",
+      "type": "default",
+      "enabled": true
+    },
+    {
       "key": "query",
       "value": "example",
       "type": "default",

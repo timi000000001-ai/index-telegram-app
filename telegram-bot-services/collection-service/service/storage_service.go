@@ -22,9 +22,7 @@ import (
 // @date 2023-11-15
 // @version 1.0.0
 type StorageConfig struct {
-    PocketBaseURL    string
-    MeilisearchURL   string
-    MeilisearchToken string
+    PocketBaseURL string
 }
 
 // StorageService 定义存储服务接口
@@ -93,19 +91,7 @@ func (s *storageServiceImpl) SaveToPocketBase(data map[string]interface{}) error
 // @param data 需要索引的消息数据
 // @return error 错误信息
 func (s *storageServiceImpl) IndexToMeilisearch(data map[string]interface{}) error {
-    resp, err := s.client.R().
-        SetHeader("Authorization", "Bearer "+s.config.MeilisearchToken).
-        SetBody([]map[string]interface{}{data}).
-        Post(s.config.MeilisearchURL + "/indexes/messages/documents")
-    if err != nil {
-        log.Printf("Failed to connect to Meilisearch: %v", err)
-        return fmt.Errorf("failed to connect to Meilisearch: %w", err)
-    }
-    if resp.StatusCode() != 202 {
-        log.Printf("Meilisearch returned non-202 status: %d, body: %s", resp.StatusCode(), resp.Body())
-        return fmt.Errorf("Meilisearch returned status code: %d", resp.StatusCode())
-    }
-    log.Printf("Successfully indexed message to Meilisearch")
+    // Meilisearch配置应从CollectionService获取，此处不再处理
     return nil
 }
 
@@ -122,10 +108,9 @@ func (s *storageServiceImpl) SaveAndIndex(data map[string]interface{}) error {
     }
     
     // 索引到Meilisearch
-    if err := s.IndexToMeilisearch(data); err != nil {
-        log.Printf("Warning: Failed to index to Meilisearch: %v", err)
-        // 不返回错误，因为索引失败不应阻止整个流程
-    }
+    // Meilisearch的索引操作现在由CollectionService负责，StorageService不再直接处理
+    // 因此，这里不再调用s.IndexToMeilisearch(data)
+
     
     return nil
 }

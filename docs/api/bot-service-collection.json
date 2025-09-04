@@ -1,0 +1,104 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6",
+    "name": "机器人服务 API",
+    "description": "处理来自Telegram的Webhook更新。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "处理Webhook更新",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{bot_service_url}}/webhook/{{bot_token}}",
+          "host": ["{{bot_service_url}}"],
+          "path": ["webhook", "{{bot_token}}"]
+        },
+        "description": "处理来自Telegram的Webhook更新，需要在路径中提供机器人的token。",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"update_id\": 123456789,\n  \"message\": {\n    \"message_id\": 123,\n    \"from\": {\n      \"id\": 12345678,\n      \"is_bot\": false,\n      \"first_name\": \"User\",\n      \"username\": \"username\",\n      \"language_code\": \"en\"\n    },\n    \"chat\": {\n      \"id\": 12345678,\n      \"first_name\": \"User\",\n      \"username\": \"username\",\n      \"type\": \"private\"\n    },\n    \"date\": 1631234567,\n    \"text\": \"/help\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "获取机器人状态",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{bot_service_url}}/api/bots/status",
+          "host": ["{{bot_service_url}}"],
+          "path": ["api", "bots", "status"]
+        },
+        "description": "获取所有机器人的在线状态。"
+      },
+      "response": []
+    },
+    {
+      "name": "生成机器人登录码",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{bot_service_url}}/api/bot/login/generate",
+          "host": ["{{bot_service_url}}"],
+          "path": ["api", "bot", "login", "generate"]
+        },
+        "description": "为机器人生成一次性登录码。"
+      },
+      "response": []
+    },
+    {
+      "name": "检查机器人登录状态",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{bot_service_url}}/api/bot/login/status?token={{login_token}}",
+          "host": ["{{bot_service_url}}"],
+          "path": ["api", "bot", "login", "status"],
+          "query": [
+            {
+              "key": "token",
+              "value": "{{login_token}}"
+            }
+          ]
+        },
+        "description": "使用登录码token检查机器人的登录状态。"
+      },
+      "response": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "key": "bot_service_url",
+      "value": "http://localhost:8081",
+      "type": "string"
+    },
+    {
+      "key": "bot_token",
+      "value": "YOUR_BOT_TOKEN",
+      "type": "string"
+    }
+  ]
+}

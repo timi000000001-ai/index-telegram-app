@@ -23,17 +23,41 @@
 
 ## 配置说明
 
+服务通过 `configs` 目录下的 JSON 文件进行配置，支持多种运行环境。通过设置 `APP_ENV` 环境变量来选择加载对应的配置文件。
+
+- **development.json**: 开发环境配置 (默认)
+- **production.json**: 生产环境配置
+- **testing.json**: 测试环境配置
+
 ### 环境变量
 
-创建 `.env` 文件或设置以下环境变量：
+- `APP_ENV`: 指定运行环境，可选值为 `development`、`production`、`testing`。
 
+例如，要以生产模式运行，请设置：
+
+```bash
+export APP_ENV=production
 ```
-API_ID=123456                                # Telegram API ID
-API_HASH=your_api_hash                       # Telegram API Hash
-POCKETBASE_URL=http://your-pocketbase-url   # PocketBase 服务 URL
-POCKETBASE_TOKEN=YOUR_POCKETBASE_TOKEN      # PocketBase 认证令牌
-MEILISEARCH_URL=http://your-meilisearch-url # Meilisearch 服务 URL
-MEILISEARCH_KEY=YOUR_MEILISEARCH_KEY        # Meilisearch 认证密钥
+
+### 配置文件示例 (`configs/development.json`)
+
+```json
+{
+  "server": {
+    "port": "8082"
+  },
+  "telegram": {
+    "apiID": 2345678,
+    "apiHash": "your_telegram_api_hash"
+  },
+  "storage": {
+    "pocketBaseURL": "http://127.0.0.1:8090"
+  },
+  "search": {
+    "meilisearchURL": "http://127.0.0.1:7700",
+    "meilisearchToken": "your_meilisearch_token"
+  }
+}
 ```
 
 ## 安装与运行

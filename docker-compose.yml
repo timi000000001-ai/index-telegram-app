@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  meilisearch:
+    image: getmeili/meilisearch:v1.8
+    container_name: meilisearch
+    ports:
+      - "7700:7700"
+    volumes:
+      - ./meilisearch/data:/meili_data
+    environment:
+      - MEILI_MASTER_KEY=timigogogo
+      - MEILI_ENV=development

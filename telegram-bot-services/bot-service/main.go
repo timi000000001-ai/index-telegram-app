@@ -11,14 +11,16 @@
 package main
 
 import (
-    "encoding/json"
-    "log"
-    "net/http"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
 
-    "github.com/gorilla/mux"
-    "gopkg.in/telebot.v3"
-    
-    "bot-service/service"
+	"bot-service/internal/config"
+	"bot-service/service"
+	"github.com/gorilla/mux"
+	"gopkg.in/telebot.v3"
 )
 
 // 全局服务实例
@@ -56,28 +58,28 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 // @author fcj
 // @date 2023-11-15
 // @version 1.0.0
-func initServices() {
-    // 初始化存储服务
-    storageConfig := service.StorageConfig{
-        PocketBaseURL:    "http://your-pocketbase-url",
-        MeilisearchURL:   "http://your-meilisearch-url",
-        MeilisearchToken: "YOUR_MEILISEARCH_TOKEN",
-    }
-    storageService = service.NewStorageService(storageConfig)
-    
-    // 初始化搜索服务
-    searchConfig := service.SearchConfig{
-        MeilisearchURL:      "http://your-meilisearch-url",
-        MeilisearchKey:      "YOUR_MEILISEARCH_TOKEN",
-        ManagementServiceURL: "http://your-management-service:8080",
-    }
-    searchService = service.NewSearchService(searchConfig)
-    
-    // 初始化消息服务
-    messageService = service.NewMessageService(storageService, searchService)
-    
-    // 初始化机器人服务
-    botService = service.NewBotService()
+func initServices(cfg *config.Config) {
+	// 初始化存储服务
+	storageConfig := service.StorageConfig{
+		PocketBaseURL:    cfg.Storage.PocketBaseURL,
+		MeilisearchURL:   cfg.Storage.MeilisearchURL,
+		MeilisearchToken: cfg.Storage.MeilisearchToken,
+	}
+	storageService = service.NewStorageService(storageConfig)
+
+	// 初始化搜索服务
+	searchConfig := service.SearchConfig{
+		MeilisearchURL:       cfg.Search.MeilisearchURL,
+		MeilisearchKey:       cfg.Search.MeilisearchKey,
+		ManagementServiceURL: cfg.Search.ManagementServiceURL,
+	}
+	searchService = service.NewSearchService(searchConfig)
+
+	// 初始化消息服务
+	messageService = service.NewMessageService(storageService, searchService)
+
+	// 初始化机器人服务
+	botService = service.NewBotService()
 }
 
 // 初始化机器人
@@ -101,27 +103,38 @@ func initBots(configs []service.BotConfig) {
 }
 
 func main() {
-    // 初始化服务
-    initServices()
-    
-    // 机器人配置
-    botConfigs := []service.BotConfig{
-        {Token: "8174016634:AAE6uDvC3TeWCYYjjZPEeDB7cM3v90w-mEc", WebhookURL: "http://localhost:8081/webhook/8174016634:AAE6uDvC3TeWCYYjjZPEeDB7cM3v90w-mEc"},
-    }
-    
-    // 初始化机器人
-    initBots(botConfigs)
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "development"
+	}
 
-    // 设置路由
-    r := mux.NewRouter()
-    r.HandleFunc("/webhook/{token}", webhookHandler).Methods("POST")
+	cfg, err := config.Load(env)
+	if err != nil {
+		log.Fatalf("Failed to load config: %v", err)
+	}
 
-    // 启动服务器
-    log.Println("Bot Service running on :8081")
-    err := http.ListenAndServe(":8081", r)
-    if err != nil {
-        log.Fatal("Failed to start server: ", err)
-    }
+	// 初始化服务
+	initServices(cfg)
+
+	// 机器人配置
+	botConfigs := []service.BotConfig{
+		{Token: "8174016634:AAE6uDvC3TeWCYYjjZPEeDB7cM3v90w-mEc", WebhookURL: "http://localhost:8081/webhook/8174016634:AAE6uDvC3TeWCYYjjZPEeDB7cM3v90w-mEc"},
+	}
+
+	// 初始化机器人
+	initBots(botConfigs)
+
+	// 设置路由
+	r := mux.NewRouter()
+	r.HandleFunc("/webhook/{token}", webhookHandler).Methods("POST")
+
+	// 启动服务器
+	addr := fmt.Sprintf(":%s", cfg.Server.Port)
+	log.Printf("Bot Service running on %s", addr)
+	err = http.ListenAndServe(addr, r)
+	if err != nil {
+		log.Fatal("Failed to start server: ", err)
+	}
 }
 
 /*

@@ -2,7 +2,7 @@
  * API 接口封装模块
  * @author 前端工程师
  * @date 2024-01-23
- * @version 1.0.0
+ * @version 1.1.0
  * © Telegram Search App
  */
 
@@ -53,15 +53,15 @@ export const searchAPI = {
      * @returns {Promise<string[]>} 建议列表
      */
     async getSuggestions(query) {
-        return apiFetch(`/api/suggestions?q=${encodeURIComponent(query)}`);
+        return apiFetch(`/api/search/suggestions?q=${query}`);
     },
     
     /**
      * 获取热门关键词
-     * @returns {Promise<string[]>} 热门关键词列表
+     * @returns {Promise<Array<{keyword: string, trend: string, count: number, rank: number, category: string}>>} 热门关键词列表
      */
     async getTrending() {
-        return apiFetch('/api/trending');
+        return apiFetch('/api/search/trending');
     }
 };
 
@@ -92,14 +92,14 @@ export const botAPI = {
  */
 export const userAPI = {
     /**
-     * 用户登录
-     * @param {Object} credentials - 登录凭据
+     * 用户登录 (两步验证)
+     * @param {{phone_number: string, code?: string}} payload - 登录数据
      * @returns {Promise<Object>} 登录结果
      */
-    async login(credentials) {
-        return apiFetch('/api/auth/login', {
+    async login(payload) {
+        return apiFetch('/api/login', {
             method: 'POST',
-            body: JSON.stringify(credentials)
+            body: JSON.stringify(payload)
         });
     },
     

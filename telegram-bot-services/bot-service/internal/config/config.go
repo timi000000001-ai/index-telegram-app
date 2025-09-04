@@ -1,0 +1,45 @@
+package config
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+)
+
+type Config struct {
+	Server  ServerConfig  `json:"server"`
+	Storage StorageConfig `json:"storage"`
+	Search  SearchConfig  `json:"search"`
+}
+
+type ServerConfig struct {
+	Port string `json:"port"`
+}
+
+type StorageConfig struct {
+	PocketBaseURL    string `json:"pocketBaseURL"`
+	MeilisearchURL   string `json:"meilisearchURL"`
+	MeilisearchToken string `json:"meilisearchToken"`
+}
+
+type SearchConfig struct {
+	MeilisearchURL       string `json:"meilisearchURL"`
+	MeilisearchKey       string `json:"meilisearchKey"`
+	ManagementServiceURL string `json:"managementServiceURL"`
+}
+
+func Load(env string) (*Config, error) {
+	path := fmt.Sprintf("configs/%s.json", env)
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open config file: %w", err)
+	}
+	defer file.Close()
+
+	cfg := &Config{}
+	if err := json.NewDecoder(file).Decode(cfg); err != nil {
+		return nil, fmt.Errorf("failed to decode config: %w", err)
+	}
+
+	return cfg, nil
+}

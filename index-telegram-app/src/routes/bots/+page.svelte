@@ -19,7 +19,6 @@
 	/** @type {Bot[]} */
 	let bots = [];
 	let loading = true;
-	/** @type {string|null} */
 	let error = null;
 	let activeTab = 'status'; // status, clone, config
 

@@ -26,6 +26,30 @@
   let error = '';
   let isSubmitting = false;
 
+  let loginMode = 'bot'; // 'phone' or 'bot'
+  let generatedBotCode = '';
+  /**
+     * @type {number | undefined}
+     */
+  let pollingInterval;
+
+  /**
+   * 设置登录模式
+   * @param {'phone' | 'bot'} mode 登录模式
+   */
+  function setLoginMode(mode) {
+    loginMode = mode;
+    if (mode === 'bot') {
+      generateCode();
+      if (pollingInterval) clearInterval(pollingInterval);
+      pollingInterval = setInterval(checkLoginStatus, 3000);
+    } else {
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+      }
+    }
+  }
+
   // 生命周期：仅在浏览器读取/写入本地存储，避免 SSR 报错
   onMount(() => {
     if (browser) {
@@ -37,6 +61,69 @@
       } catch (e) {
         console.error('Failed to parse accounts from localStorage', e);
       }
+    }
+
+    if (loginMode === 'bot') {
+      generateCode();
+      pollingInterval = setInterval(checkLoginStatus, 3000);
+    }
+  });
+
+  import { onDestroy } from 'svelte';
+
+  let loginToken = '';
+
+  // ... existing code ...
+
+  /**
+   * 生成6位数的登录码
+   * @returns {Promise<void>}
+   */
+  async function generateCode() {
+    const { ok, data } = await apiFetch('/api/bot/login/generate', { method: 'POST' });
+    if (ok && data) {
+      generatedBotCode = data.loginCode;
+      loginToken = data.token;
+    } else {
+      toastError('无法生成登录码，请稍后重试');
+    }
+  }
+
+  /**
+   * 检查机器人登录状态
+   * @returns {Promise<void>}
+   */
+  async function checkLoginStatus() {
+    if (!loginToken) return;
+
+    const { ok, data } = await apiFetch(`/api/bot/login/status?token=${loginToken}`);
+    if (ok && data?.status === 'success') {
+      toastSuccess('登录成功！');
+      clearInterval(pollingInterval);
+      window.location.href = '/';
+    }
+  }
+
+  /**
+   * 复制登录码到剪贴板
+   * @returns {Promise<void>}
+   */
+  async function copyCode() {
+    if (navigator.clipboard && generatedBotCode) {
+      try {
+        await navigator.clipboard.writeText(generatedBotCode);
+        toastSuccess('登录码已复制');
+      } catch (err) {
+        toastError('无法复制登录码');
+      }
+    } else {
+      toastError('剪贴板功能不可用');
+    }
+  }
+
+  onDestroy(() => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
     }
   });
 
@@ -126,6 +213,8 @@
     }
   }
 
+
+
   /**
    * 触发数据采集
    * @param {string} phone 手机号
@@ -160,8 +249,36 @@
       </h1>
       <p class="text-slate-600 text-lg">管理您的 Telegram API 凭据和账号登录</p>
     </div>
+     <!-- Login Card -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 mb-6 hover:shadow-xl transition-all duration-300">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+        </div>
+        <h2 class="text-xl font-semibold text-slate-800">账号登录</h2>
+      </div>
 
+      <div class="flex justify-center mb-6">
+        <div class="bg-slate-200 rounded-lg p-1 flex">
+          <button
+            class={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${loginMode === 'bot' ? 'bg-white text-blue-600 shadow' : 'text-slate-600'}`}
+            on:click={() => setLoginMode('bot')}
+          >
+            机器人登录
+          </button>
+          <button
+            class={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${loginMode === 'phone' ? 'bg-white text-blue-600 shadow' : 'text-slate-600'}`}
+            on:click={() => setLoginMode('phone')}
+          >
+            采集号登录
+          </button>
+         
+        </div>
+      </div>
     <!-- API Credentials Card -->
+    {#if loginMode === 'phone'}
     <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 mb-6 hover:shadow-xl transition-all duration-300">
       <div class="flex items-center gap-3 mb-6">
         <div class="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
@@ -208,83 +325,97 @@
         </button>
       </div>
     </div>
+    {/if}
 
-    <!-- Login Card -->
-    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 mb-6 hover:shadow-xl transition-all duration-300">
-      <div class="flex items-center gap-3 mb-6">
-        <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
-          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-          </svg>
-        </div>
-        <h2 class="text-xl font-semibold text-slate-800">账号登录</h2>
-      </div>
-      <div class="space-y-4">
-        <div>
-          <label for="phoneNumber" class="block text-sm font-medium text-slate-700 mb-2">手机号码</label>
-          <input 
-            id="phoneNumber" 
-            bind:value={phoneNumber} 
-            placeholder="+1234567890" 
-            class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-slate-900 placeholder-slate-400"
-          />
-        </div>
-        <button 
-          class="w-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-[1.02] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" 
-          aria-busy={isSubmitting} 
-          disabled={isSubmitting} 
-          on:click={startLogin}
-        >
-          {#if isSubmitting}
-            <div class="flex items-center justify-center gap-2">
-              <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              登录中...
-            </div>
-          {:else}
-            开始登录
-          {/if}
-        </button>
-        
-        {#if codeRequired}
-          <div class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-            <div class="flex items-center gap-2 mb-3">
-              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-              </svg>
-              <span class="text-amber-800 font-medium">验证码验证</span>
-            </div>
-            <div class="space-y-3">
-              <div>
-                <label for="code" class="block text-sm font-medium text-amber-700 mb-2">验证码</label>
-                <input 
-                  id="code" 
-                  bind:value={code} 
-                  placeholder="请输入验证码" 
-                  class="w-full px-4 py-3 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors duration-200 text-slate-900 placeholder-amber-400 bg-white"
-                />
-              </div>
-              <button 
-                class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-[1.02] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" 
-                aria-busy={isSubmitting} 
-                disabled={isSubmitting} 
-                on:click={submitCode}
-              >
-                {#if isSubmitting}
-                  <div class="flex items-center justify-center gap-2">
-                    <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    验证中...
-                  </div>
-                {:else}
-                  提交验证码
-                {/if}
-              </button>
-            </div>
+   
+
+      {#if loginMode === 'phone'}
+        <div class="space-y-4">
+          <div>
+            <label for="phoneNumber" class="block text-sm font-medium text-slate-700 mb-2">采集号</label>
+            <input 
+              id="phoneNumber" 
+              bind:value={phoneNumber} 
+              placeholder="+1234567890" 
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-slate-900 placeholder-slate-400"
+            />
           </div>
-        {/if}
-      </div>
+          <button 
+            class="w-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-[1.02] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" 
+            aria-busy={isSubmitting} 
+            disabled={isSubmitting} 
+            on:click={startLogin}
+          >
+            {#if isSubmitting}
+              <div class="flex items-center justify-center gap-2">
+                <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                登录中...
+              </div>
+            {:else}
+              开始登录
+            {/if}
+          </button>
+          
+          {#if codeRequired}
+            <div class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <div class="flex items-center gap-2 mb-3">
+                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+                <span class="text-amber-800 font-medium">验证码验证</span>
+              </div>
+              <div class="space-y-3">
+                <div>
+                  <label for="code" class="block text-sm font-medium text-amber-700 mb-2">验证码</label>
+                  <input 
+                    id="code" 
+                    bind:value={code} 
+                    placeholder="请输入验证码" 
+                    class="w-full px-4 py-3 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors duration-200 text-slate-900 placeholder-amber-400 bg-white"
+                  />
+                </div>
+                <button 
+                  class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-[1.02] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" 
+                  aria-busy={isSubmitting} 
+                  disabled={isSubmitting} 
+                  on:click={submitCode}
+                >
+                  {#if isSubmitting}
+                    <div class="flex items-center justify-center gap-2">
+                      <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      验证中...
+                    </div>
+                  {:else}
+                    提交验证码
+                  {/if}
+                </button>
+              </div>
+            </div>
+          {/if}
+        </div>
+      {:else}
+        <div class="text-center py-12">
+            <h2 class="text-3xl font-bold text-slate-800 mb-4">发码登录</h2>
+            <p class="text-slate-600 text-lg mb-8">登录码:</p>
+            <div class="text-6xl font-bold text-slate-900 tracking-widest mb-8 flex items-center justify-center gap-4">
+                <span>{generatedBotCode}</span>
+                <button 
+                    on:click={copyCode}
+                    class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                    title="复制登录码"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                </button>
+            </div>
+            <p class="text-slate-500">请将6位登录码发送给 <a href="https://t.me/TeleSearchVipbot" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">管理机器人</a> 进行登录</p>
+        </div>
+      {/if}
     </div>
 
     <!-- Accounts Card -->
+    {#if loginMode === 'phone'}
     <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300">
       <div class="flex items-center gap-3 mb-6">
         <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
@@ -348,8 +479,8 @@
           {/each}
         </div>
       {/if}
-    </div>
-  </div>
+      </div>
+      {/if}
 </main>
 
 

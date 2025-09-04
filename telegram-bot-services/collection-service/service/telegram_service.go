@@ -27,8 +27,8 @@ import (
 // @date 2023-11-15
 // @version 1.0.0
 type TelegramConfig struct {
-    APIID   int
-    APIHash string
+    AppID   int    `json:"app_id"`
+    AppHash string `json:"app_hash"`
 }
 
 // SessionData 会话数据结构
@@ -101,7 +101,7 @@ func (t *telegramServiceImpl) NewClient(phoneNumber string) (*tdapi.Client, erro
     }
     
     // 创建新的Telegram客户端
-    client := tdapi.NewClient(t.config.APIID, t.config.APIHash, tdapi.Options{})
+    client := tdapi.NewClient(t.config.AppID, t.config.AppHash, tdapi.Options{})
     return client, nil
 }
 

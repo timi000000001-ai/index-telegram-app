@@ -10,8 +10,7 @@
 
 import { onMount, onDestroy } from 'svelte';
 import { browser } from '$app/environment';
-import { apiFetch } from '$lib/api.js';
-import { generateMockData, generateMockSuggestions, generateMockTrending } from '$lib/mockApi.js';
+import { searchAPI, botAPI, userAPI } from '$lib/api.js';
 import GroupModal from '$lib/components/GroupModal.svelte';
 
 import CollectionModal from '$lib/components/CollectionModal.svelte';
@@ -154,33 +153,16 @@ async function search() {
     const params = {
       q: query.trim(),
       page,
-      size,
+      limit: size,
       sort,
-      ...filters
+      filter: filters.type || 'all',
     };
 
-    // 尝试调用真实API，如果失败则使用模拟数据
-    try {
-      const response = await apiFetch('/api/search', {
-        method: 'POST',
-        body: JSON.stringify(params)
-      });
-      
-      results = response.results || [];
-      total = response.total || 0;
-    } catch (apiError) {
-        console.log('API不可用，使用模拟数据:', apiError instanceof Error ? apiError.message : String(apiError));
-        
-        // 使用模拟数据
-        const mockData = generateMockData(query.trim(), page, size);
-        results = mockData.results;
-        total = mockData.total;
-      }
-
+    const data = await searchAPI.search(params);
+    
+    results = data.results || [];
+    total = data.total || 0;
     elapsedMs = Date.now() - startTime;
-
-    // 保存搜索历史
-    saveToHistory(query.trim());
   } catch (error) {
     console.error('搜索失败:', error);
     results = [];
@@ -198,58 +180,39 @@ async function search() {
    * @returns {Promise<void>}
    */
   const fetchSuggestions = debounce(async (/** @type {string} */ q) => {
-  if (!q.trim() || q.length < 2) {
-    suggestions = [];
-    return;
-  }
+    if (!q.trim() || q.length < 2) {
+      suggestions = [];
+      return;
+    }
 
-  isFetchingSuggestions = true;
-  try {
-    // 尝试调用真实API，如果失败则使用模拟数据
+    isFetchingSuggestions = true;
     try {
-      const response = await apiFetch(`/api/suggestions?q=${encodeURIComponent(q)}`);
-      suggestions = response.suggestions || [];
-    } catch (apiError) {
-        console.log('建议API不可用，使用模拟数据:', apiError instanceof Error ? apiError.message : String(apiError));
-        suggestions = generateMockSuggestions(q);
-      }
-  } catch (error) {
-    console.error('获取建议失败:', error);
-    suggestions = [];
-  } finally {
-    isFetchingSuggestions = false;
-  }
-});
+      suggestions = await searchAPI.getSuggestions(q);
+    } catch (error) {
+      console.error('获取建议失败:', error);
+      suggestions = [];
+    } finally {
+      isFetchingSuggestions = false;
+    }
+  });
 
-
-
-
-/**
- * 获取热门搜索
- * @returns {Promise<void>}
- */
-async function fetchTrending() {
-  isFetchingTrending = true;
-  try {
-    // 尝试调用真实API，如果失败则使用模拟数据
+  /**
+   * 获取热门搜索
+   * @returns {Promise<void>}
+   */
+  async function fetchTrending() {
+    isFetchingTrending = true;
     try {
-      const response = await apiFetch('/api/trending');
-      trending = response.data?.trending || [];
-    } catch (apiError) {
-        console.log('热门搜索API不可用，使用模拟数据:', apiError instanceof Error ? apiError.message : String(apiError));
-        trending = generateMockTrending();
-      }
-  } catch (error) {
-    console.error('获取热门搜索失败，使用模拟数据:', error);
-    trending = generateMockTrending();
-  } finally {
-    isFetchingTrending = false;
+      trending = await searchAPI.getTrending();
+    } catch (error) {
+      console.error('获取热门搜索失败:', error);
+      trending = [];
+    } finally {
+      isFetchingTrending = false;
+    }
   }
-}
 
-
-
-// ===================== 辅助函数 =====================
+  // ===================== 辅助函数 =====================
 /**
  * 获取分类中文名称
  * @param {string} category - 分类英文名
@@ -507,6 +470,7 @@ function clearHistory() {
 onMount(() => {
   loadHistory();
   fetchTrending();
+  search("bots");
 });
 
 
@@ -914,10 +878,12 @@ onMount(() => {
             {/if}
 
           </div>
-          <div class="flex items-center gap-3 overflow-x-auto w-full sm:w-auto justify-end">
-            <button class="flex-shrink-0 px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled={isSearching || page<=1} on:click={() => goToPage(page-1)}>上一页</button>
-            <span class="flex-shrink-0 text-sm text-slate-600 px-3">第 {page} / {totalPages()} 页</span>
-            <button class="flex-shrink-0 px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled={isSearching || page>=totalPages()} on:click={() => goToPage(page+1)}>下一页</button>
+          <div class="w-full sm:w-auto">
+            <div class="flex items-center justify-center sm:justify-end gap-3">
+              <button class="flex-shrink-0 px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled={isSearching || page <= 1} on:click={() => goToPage(page - 1)}>上一页</button>
+              <span class="flex-shrink-0 text-sm text-slate-600 px-3">第 {page} / {totalPages()} 页</span>
+              <button class="flex-shrink-0 px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled={isSearching || page >= totalPages()} on:click={() => goToPage(page + 1)}>下一页</button>
+            </div>
           </div>
         </div>
 

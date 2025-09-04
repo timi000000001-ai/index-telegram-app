@@ -1,0 +1,89 @@
+{
+  "info": {
+    "_postman_id": "c3d4e5f6-g7h8-i9j0-k1l2-m3n4o5p6q7r8",
+    "name": "采集服务 API",
+    "description": "提供用户登录、配置采集目标和健康检查功能。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "登录 - 发送验证码",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "url": {
+          "raw": "{{collection_service_url}}/api/login",
+          "host": ["{{collection_service_url}}"],
+          "path": ["api", "login"]
+        },
+        "description": "发送登录请求，系统会向指定的电话号码发送验证码。",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone_number\": \"+1234567890\"\n}",
+          "options": {"raw": {"language": "json"}}
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "登录 - 提交验证码",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "url": {
+          "raw": "{{collection_service_url}}/api/verify",
+          "host": ["{{collection_service_url}}"],
+          "path": ["api", "verify"]
+        },
+        "description": "提交验证码完成登录流程。",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone_number\": \"+1234567890\",\n  \"code\": \"12345\"\n}",
+          "options": {"raw": {"language": "json"}}
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "配置采集目标",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "url": {
+          "raw": "{{collection_service_url}}/api/collect",
+          "host": ["{{collection_service_url}}"],
+          "path": ["api", "collect"]
+        },
+        "description": "配置需要采集消息的目标群组ID列表。",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"chat_ids\": [123, 456]\n}",
+          "options": {"raw": {"language": "json"}}
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "健康检查",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{collection_service_url}}/health",
+          "host": ["{{collection_service_url}}"],
+          "path": ["health"]
+        },
+        "description": "检查服务健康状态。"
+      },
+      "response": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "key": "collection_service_url",
+      "value": "http://localhost:8082",
+      "type": "string"
+    }
+  ]
+}

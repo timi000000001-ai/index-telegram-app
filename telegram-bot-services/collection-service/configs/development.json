@@ -1,0 +1,16 @@
+{
+  "server": {
+    "port": "8082"
+  },
+  "telegram": {
+    "apiID": 2345678,
+    "apiHash": "your_telegram_api_hash"
+  },
+  "storage": {
+    "pocketBaseURL": "http://127.0.0.1:8090"
+  },
+  "search": {
+    "meilisearchURL": "http://127.0.0.1:7700",
+    "meilisearchToken": "your_meilisearch_token"
+  }
+}
