@@ -964,8 +964,9 @@ onMount(() => {
   - 客户端渲染，localStorage 仅在浏览器环境访问；样式兼容现代浏览器
 -->
 
-
-
-
+<footer class="text-center py-4 text-gray-500 text-sm">
+  <span>© 2024 Telegram搜索平台 - 高效搜索, 精准定位</span>
+  <a href="#" on:click|preventDefault={openDisclaimerModal} class="hover:underline text-red-500 ml-2">免责声明</a>
+</footer>
 
 <DisclaimerModal bind:show={showDisclaimerModal} on:close={closeDisclaimerModal} />
