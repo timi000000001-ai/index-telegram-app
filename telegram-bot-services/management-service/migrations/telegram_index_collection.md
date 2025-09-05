@@ -5,7 +5,8 @@
 ### 基础信息字段
 | 字段名 | 类型 | 说明 | 约束 |
 |--------|------|------|------|
-| id | string | 主键，使用 chatid/teleid | PRIMARY KEY |
+| id | string | 主键 系统主键 | PRIMARY KEY |
+| chat_id | string | 主键，使用 chatid/teleid | PRIMARY KEY |
 | type | string | 类型：group/channel/bot | NOT NULL |
 | title | string | 名称/标题 | NOT NULL |
 | username | string | 用户名（@username） |  |

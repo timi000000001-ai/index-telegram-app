@@ -10,6 +10,7 @@ type Config struct {
 	Server  ServerConfig  `json:"server"`
 	Storage StorageConfig `json:"storage"`
 	Search  SearchConfig  `json:"search"`
+	Bot     BotConfig     `json:"bot"`
 }
 
 type ServerConfig struct {
@@ -28,7 +29,15 @@ type SearchConfig struct {
 	ManagementServiceURL string `json:"managementServiceURL"`
 }
 
-func Load(env string) (*Config, error) {
+type BotConfig struct {
+	Token                  string `json:"token"`
+	WebhookURL             string `json:"webhookURL"`
+	APIEndpoint            string `json:"apiEndpoint"`
+	ManagementServiceURL   string `json:"managementServiceURL"`
+	ManagementServiceToken string `json:"managementServiceToken"`
+}
+
+func LoadConfig(env string) (*Config, error) {
 	path := fmt.Sprintf("configs/%s.json", env)
 	file, err := os.Open(path)
 	if err != nil {

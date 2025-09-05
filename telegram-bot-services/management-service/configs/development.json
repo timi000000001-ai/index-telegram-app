@@ -2,6 +2,8 @@
   "server": {
     "port": "8080"
   },
-  "meilisearch_url": "http://127.0.0.1:7700",
-  "meilisearch_key": "timigogogo"
+  "meilisearch_url": "http://localhost:7700",
+  "meilisearch_key": "masterKey",
+  "pocketbase_url": "http://127.0.0.1:8090",
+  "bot_service_url": "http://localhost:8081"
 }
