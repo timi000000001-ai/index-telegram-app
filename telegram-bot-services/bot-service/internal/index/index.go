@@ -1,10 +1,14 @@
 package index
+
 import (
+	"bot-service/internal/config"
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
-	"bot-service/internal/config"
+	"time"
 )
 
 // SaveTelegramIndex saves the telegram index data to the management service.
@@ -81,6 +85,48 @@ func SaveTelegramIndex(data map[string]interface{}) error {
 		return fmt.Errorf("%s failed with status: %d", method, resp.StatusCode)
 	}
 
+	// Check if index exists, create if not with primaryKey 'id'
+	indexURL := cfg.Storage.MeilisearchURL + "/indexes/telegram_index"
+	indexReq, err := http.NewRequest("GET", indexURL, nil)
+	if err != nil {
+		return fmt.Errorf("failed to create index check request: %w", err)
+	}
+	indexReq.Header.Set("Authorization", "Bearer " + cfg.Storage.MeilisearchToken)
+
+	indexResp, err := client.Do(indexReq)
+	if err != nil {
+		return fmt.Errorf("failed to check index: %w", err)
+	}
+	defer indexResp.Body.Close()
+
+	if indexResp.StatusCode == http.StatusNotFound {
+		// Create index with primaryKey 'id'
+		createPayload := map[string]string{"uid": "telegram_index", "primaryKey": "id"}
+		createJSON, err := json.Marshal(createPayload)
+		if err != nil {
+		return fmt.Errorf("failed to marshal create index payload: %w", err)
+		}
+		createReq, err := http.NewRequest("POST", cfg.Storage.MeilisearchURL + "/indexes", bytes.NewBuffer(createJSON))
+		if err != nil {
+		return fmt.Errorf("failed to create index creation request: %w", err)
+		}
+		createReq.Header.Set("Content-Type", "application/json")
+		createReq.Header.Set("Authorization", "Bearer " + cfg.Storage.MeilisearchToken)
+
+		createResp, err := client.Do(createReq)
+		if err != nil {
+		return fmt.Errorf("failed to create index: %w", err)
+		}
+		defer createResp.Body.Close()
+
+		if createResp.StatusCode != http.StatusAccepted {
+			body, _ := io.ReadAll(createResp.Body)
+			return fmt.Errorf("index creation failed with status: %d, body: %s", createResp.StatusCode, string(body))
+		}
+		// Wait for task to complete (simplified, in production use task status)
+		time.Sleep(2 * time.Second)
+	}
+
 	// Index to MeiliSearch
 	meiliURL := cfg.Storage.MeilisearchURL + "/indexes/telegram_index/documents"
 	docData := make(map[string]interface{})
@@ -88,6 +134,7 @@ func SaveTelegramIndex(data map[string]interface{}) error {
 		docData[k] = v
 	}
 	docData["id"] = chatID
+	delete(docData, "chat_id")
 	docs := []map[string]interface{}{docData}
 	docsJSON, err := json.Marshal(docs)
 	if err != nil {
@@ -106,8 +153,11 @@ func SaveTelegramIndex(data map[string]interface{}) error {
 	}
 	defer meiliResp.Body.Close()
 
+	body, _ := io.ReadAll(meiliResp.Body)
+	log.Printf("MeiliSearch response: status=%d, body=%s", meiliResp.StatusCode, string(body))
+
 	if meiliResp.StatusCode != http.StatusAccepted {
-		return fmt.Errorf("MeiliSearch indexing failed with status: %d", meiliResp.StatusCode)
+		return fmt.Errorf("MeiliSearch indexing failed with status: %d, body: %s", meiliResp.StatusCode, string(body))
 	}
 
 	return nil

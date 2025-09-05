@@ -13,9 +13,9 @@
   },
   "bot": {
     "token": "YOUR_TELEGRAM_BOT_TOKEN",
-    "webhookURL": "http://127.0.0.1:8080",
+    "webhookURL": "http://127.0.0.1:8081",
     "apiEndpoint": "http://127.0.0.1:8082",
     "managementServiceURL": "http://127.0.0.1:8090",
-    "managementServiceToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJwYmNfMzE0MjYzNTgyMyIsImV4cCI6MTc1NzA4MTY3MCwiaWQiOiJwaWJvcjZzb3BqaDNrN3MiLCJyZWZyZXNoYWJsZSI6ZmFsc2UsInR5cGUiOiJhdXRoIn0.i7bxJpx3WiT2THTz2fm2NX8yK6e5QlMZG-KzWoOu90s"
+    "managementServiceToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJwYmNfMzE0MjYzNTgyMyIsImV4cCI6MTc1NzE2ODM2NiwiaWQiOiJwaWJvcjZzb3BqaDNrN3MiLCJyZWZyZXNoYWJsZSI6ZmFsc2UsInR5cGUiOiJhdXRoIn0.qYKnNjmhHz7HjEir__7sTXtlRhmyratWsXengXkpdc8"
   }
 }

@@ -72,7 +72,7 @@ func (s *searchServiceImpl) IndexToMeilisearch(data map[string]interface{}) erro
     resp, err := s.client.R().
         SetHeader("Authorization", "Bearer "+s.config.MeilisearchKey).
         SetBody([]map[string]interface{}{data}).
-        Post(s.config.MeilisearchURL + "/indexes/messages/documents")
+        Post(s.config.MeilisearchURL + "/indexes/telegram_index/documents")
     if err != nil {
         log.Printf("Failed to connect to Meilisearch: %v", err)
         return fmt.Errorf("failed to connect to Meilisearch: %w", err)
@@ -100,18 +100,39 @@ func (s *searchServiceImpl) Search(query string, page int, limit int, filter str
     params.Set("q", query)
     params.Set("page", fmt.Sprintf("%d", page))
     params.Set("limit", fmt.Sprintf("%d", limit))
-    if filter != "" {
-        params.Set("filter", filter)
+    var meiliFilter string
+    switch filter {
+    case "all":
+        meiliFilter = ""
+    case "group":
+        meiliFilter = "chat_type IN [group, supergroup]"
+    case "channel":
+        meiliFilter = "chat_type = channel"
+    case "bot":
+        meiliFilter = "sender_is_bot = true"
+    default:
+        meiliFilter = ""
+    }
+    if meiliFilter != "" {
+        params.Set("filter", meiliFilter)
     }
     
-    // 调用管理服务的搜索API
+    // 直接调用 MeiliSearch 的搜索 API
+    searchURL := s.config.MeilisearchURL + "/indexes/telegram_index/search"
+    params.Set("offset", fmt.Sprintf("%d", (page-1)*limit))
+    params.Set("hitsPerPage", fmt.Sprintf("%d", limit))
+    
     resp, err := s.client.R().
-        SetHeader("Authorization", "Bearer YOUR_AUTH_TOKEN").
+        SetHeader("Authorization", "Bearer " + s.config.MeilisearchKey).
         SetQueryParamsFromValues(params).
-        Get(s.config.ManagementServiceURL + "/api/search")
+        Get(searchURL)
     if err != nil {
-        log.Printf("Failed to search: %v", err)
-        return nil, fmt.Errorf("failed to search: %w", err)
+        log.Printf("Failed to search in MeiliSearch: %v", err)
+        return nil, fmt.Errorf("failed to search in MeiliSearch: %w", err)
+    }
+    if resp.StatusCode() != 200 {
+        log.Printf("MeiliSearch returned status: %d, body: %s", resp.StatusCode(), resp.Body())
+        return nil, fmt.Errorf("MeiliSearch returned status code: %d", resp.StatusCode())
     }
     
     return resp.Body(), nil

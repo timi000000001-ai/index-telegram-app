@@ -3,6 +3,8 @@ package management
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 
 	"bot-service/internal/config"
@@ -53,6 +55,12 @@ func GetBotsToken() ([]service.BotConfig, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Printf("Failed to read response body: %v", err)
+		} else {
+			log.Printf("Failed to get bot configs: status %d, body: %s", resp.StatusCode, string(bodyBytes))
+		}
 		return nil, fmt.Errorf("received non-200 status code: %d", resp.StatusCode)
 	}
 

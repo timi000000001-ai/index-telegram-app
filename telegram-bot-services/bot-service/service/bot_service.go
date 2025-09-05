@@ -209,53 +209,53 @@ func (b *botServiceImpl) registerHandlers(bot *telebot.Bot, messageService Messa
 
 		// 如果文本以 "https://t.me" 开头，处理为索引请求
 		if strings.HasPrefix(text, "https://t.me/") {
-				fmt.Printf("Processing link: %s\n", text)
-				// 解析用户名（假设链接为 https://t.me/username）
-				parts := strings.Split(strings.TrimPrefix(text, "https://t.me/"), "/")
-				if len(parts) > 0 {
-					username := parts[0]
-					fmt.Printf("Username: %s\n", username)
-					chat, err := bot.ChatByUsername("@"+username)
-					if err != nil {
-						fmt.Printf("Error getting chat: %v\n", err)
-						return err
-					}
-					fmt.Printf("Chat retrieved: %+v\n", chat)
-					// 获取完整聊天信息
-					fullChat, err := bot.ChatByID(chat.ID)
-					if err != nil {
-						fmt.Printf("Error getting full chat: %v\n", err)
-						fullChat = chat
-					}
-					fmt.Printf("Full chat: %+v\n", fullChat)
-					description := fullChat.Description
-					if chat.Type == telebot.ChatPrivate {
-						description = fullChat.Bio
-					}
-					data := map[string]interface{}{
-						"chat_id": fmt.Sprintf("%d", chat.ID),
-						"type": string(chat.Type),
-						"title": chat.Title,
-						"username": chat.Username,
-						"first_name": chat.FirstName,
-						"last_name": chat.LastName,
-						"description": description,
-						"is_verified": false, // 默认值，因为 Verified 未定义
-						"members_count": 0, // 默认值，因为 MemberCount 未定义；可添加单独查询
-						"created_at": time.Now().Format("2006-01-02T15:04:05Z07:00"),
-						"updated_at": time.Now().Format("2006-01-02T15:04:05Z07:00"),
-						"invite_link": fullChat.InviteLink,
-						// 添加更多可用字段
-					}
-					fmt.Printf("Data to save: %+v\n", data)
-					if err := index.SaveTelegramIndex(data); err != nil {
-						fmt.Printf("Error saving index: %v\n", err)
-						return err
-					}
-					fmt.Println("Index saved successfully")
-					return c.Send("已索引聊天信息")
+			fmt.Printf("Processing link: %s\n", text)
+			// 解析用户名（假设链接为 https://t.me/username）
+			parts := strings.Split(strings.TrimPrefix(text, "https://t.me/"), "/")
+			if len(parts) > 0 {
+				username := parts[0]
+				fmt.Printf("Username: %s\n", username)
+				chat, err := bot.ChatByUsername("@" + username)
+				if err != nil {
+					fmt.Printf("Error getting chat: %v\n", err)
+					return err
 				}
+				fmt.Printf("Chat retrieved: %+v\n", chat)
+				// 获取完整聊天信息
+				fullChat, err := bot.ChatByID(chat.ID)
+				if err != nil {
+					fmt.Printf("Error getting full chat: %v\n", err)
+					fullChat = chat
+				}
+				fmt.Printf("Full chat: %+v\n", fullChat)
+				description := fullChat.Description
+				if chat.Type == telebot.ChatPrivate {
+					description = fullChat.Bio
+				}
+				data := map[string]interface{}{
+					"chat_id":       fmt.Sprintf("%d", chat.ID),
+					"type":          string(chat.Type),
+					"title":         chat.Title,
+					"username":      chat.Username,
+					"first_name":    chat.FirstName,
+					"last_name":     chat.LastName,
+					"description":   description,
+					"is_verified":   false, // 默认值，因为 Verified 未定义
+					"members_count": 0,     // 默认值，因为 MemberCount 未定义；可添加单独查询
+					"created_at":    time.Now().Format("2006-01-02T15:04:05Z07:00"),
+					"updated_at":    time.Now().Format("2006-01-02T15:04:05Z07:00"),
+					"invite_link":   fullChat.InviteLink,
+					// 添加更多可用字段
+				}
+				fmt.Printf("Data to save: %+v\n", data)
+				if err := index.SaveTelegramIndex(data); err != nil {
+					fmt.Printf("Error saving index: %v\n", err)
+					return err
+				}
+				fmt.Println("Index saved successfully")
+				return c.Send("已索引聊天信息")
 			}
+		}
 
 		// 如果文本较短，视为搜索查询
 		if len([]rune(text)) <= 10 {
@@ -267,8 +267,10 @@ func (b *botServiceImpl) registerHandlers(bot *telebot.Bot, messageService Messa
 			"message_id": c.Message().ID,
 			"chat_id":    c.Chat().ID,
 			"chat_title": c.Chat().Title,
+			"chat_type":  string(c.Chat().Type),
 			"text":       text,
 			"sender_id":  fmt.Sprintf("user_%d", c.Sender().ID),
+			"sender_is_bot": c.Sender().IsBot,
 			"date":       c.Message().Time().Format("2006-01-02T15:04:05Z07:00"),
 		}
 
@@ -288,19 +290,24 @@ func (b *botServiceImpl) registerHandlers(bot *telebot.Bot, messageService Messa
 
 		// 欢迎消息
 		welcomeText := fmt.Sprintf(
-			"你好, %s, 欢迎来到我们的TG机器人！\n\n" +
-				"<a href=\"https://t.me/addlist/pMIbwEotf14wOGU1\">👏 点击加入我们的交流大群 👏</a>\n\n" +
-				"<b>使用说明:</b>\n" +
-				"- 直接向我发送消息，即可将内容保存到您的个人收藏夹。\n" +
-				"- 发送短于10个字符的文本，将触发搜索功能。\n" +
-				"- 使用 <code>/mini</code> 命令可以随时唤出小程序。\n\n" +
+			"你好, %s, 欢迎来到我们的TG机器人！\n\n"+
+				"<a href=\"https://t.me/addlist/pMIbwEotf14wOGU1\">👏 点击加入我们的交流大群 👏</a>\n\n"+
+				"<b>使用说明:</b>\n"+
+				"- 直接向我发送消息，即可将内容保存到您的个人收藏夹。\n"+
+				"- 发送短于10个字符的文本，将触发搜索功能。\n"+
+				"- 使用 <code>/mini</code> 命令可以随时唤出小程序。\n\n"+
 				"🔍✨👇 点击下方按钮打开小程序，或选择一个大群加入我们！",
 			c.Sender().FirstName,
 		)
 
 		// 创建内联键盘
 		inlineKeys := [][]telebot.InlineButton{
+			{},
 			{
+				telebot.InlineButton{Text: "搜索大群", URL: "https://t.me/SoSo00000000001"},
+				telebot.InlineButton{Text: "搜索每日更新频道", URL: "https://t.me/SoSo00000000002"},
+			},
+			{telebot.InlineButton{Text: "搜索消息监听", URL: "https://t.me/SoSo00000000003"},
 				telebot.InlineButton{
 					Text: "🚀 打开小程序",
 					WebApp: &telebot.WebApp{
@@ -308,16 +315,7 @@ func (b *botServiceImpl) registerHandlers(bot *telebot.Bot, messageService Messa
 					},
 				},
 			},
-			{
-				telebot.InlineButton{Text: "中文学习交流群", URL: "https://t.me/addlist/pMIbwEotf14wOGU1"},
-				telebot.InlineButton{Text: "资源分享群", URL: "https://t.me/addlist/pMIbwEotf14wOGU1"},
-			},
-			{
-				telebot.InlineButton{Text: "技术交流群", URL: "https://t.me/addlist/pMIbwEotf14wOGU1"},
-				telebot.InlineButton{Text: "闲聊吹水群", URL: "https://t.me/addlist/pMIbwEotf14wOGU1"},
-			},
 		}
-
 		return c.Send(welcomeText, &telebot.SendOptions{
 			ParseMode:             telebot.ModeHTML,
 			DisableWebPagePreview: true,
