@@ -10,7 +10,7 @@ import (
 
 	"bot-service/internal/config"
 
-	"gopkg.in/telebot.v3"
+	"gopkg.in/telebot.v4"
 )
 
 // UserSaver is responsible for saving user data to the management service.

@@ -7,13 +7,13 @@ import (
 	"log"
 	"net/http"
 
+	"bot-service/internal/api/handler"
 	"bot-service/internal/config"
-	"bot-service/service"
 )
 
 // BotConfigResponse matches the structure of the response from the management service.
 type BotConfigResponse struct {
-	Items []service.BotConfig `json:"items"`
+	Items []handler.BotConfig `json:"items"`
 }
 
 // Client is a client for the management service.
@@ -33,13 +33,13 @@ func NewClient(baseURL string, token string) *Client {
 }
 
 // GetBotConfigs fetches bot configurations from the management service.
-func GetBotsToken() ([]service.BotConfig, error) {
+func GetBotsToken() ([]handler.BotConfig, error) {
 
 	c, err := config.LoadConfig("development")
 	if err != nil {
 		return nil, fmt.Errorf("failed to load config: %w", err)
 	}
-	url := "http://127.0.0.1:8090/api/collections/bot_info/records"
+	url := c.Bot.ManagementServiceURL+"/api/collections/bot_info/records"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)

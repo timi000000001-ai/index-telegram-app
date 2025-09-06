@@ -7,22 +7,25 @@ import (
 )
 
 type Config struct {
-	Server  ServerConfig  `json:"server"`
-	Storage StorageConfig `json:"storage"`
-	Search  SearchConfig  `json:"search"`
-	Bot     BotConfig     `json:"bot"`
+	Server  ServerConfig `json:"server"`
+	Storage Storage      `json:"storage"`
+	Search  SearchConfig `json:"search"`
+	Bot     BotConfig    `json:"bot"`
 }
 
 type ServerConfig struct {
 	Port string `json:"port"`
 }
 
-type StorageConfig struct {
+// Storage defines the configuration for storage services.
+type Storage struct {
 	PocketBaseURL    string `json:"pocketBaseURL"`
+	PocketBaseToken  string `json:"pocketBaseToken"`
 	MeilisearchURL   string `json:"meilisearchURL"`
 	MeilisearchToken string `json:"meilisearchToken"`
 }
 
+// Search defines the configuration for search services.
 type SearchConfig struct {
 	MeilisearchURL       string `json:"meilisearchURL"`
 	MeilisearchKey       string `json:"meilisearchKey"`

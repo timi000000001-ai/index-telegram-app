@@ -9,7 +9,7 @@
 | id                | bigint       | 是   |                   | 主键ID。 |
 | user              | bigint       | 是   |                   | 操作用户ID（外键，关联 users.id）。迁移中为 Relation 字段。 |
 | bot_id            | varchar(255) | 否   |                   | 机器人ID/标识（字符串存储，视运行环境而定）。 |
-| operation_type    | varchar(64)  | 是   |                   | 操作类型（如 create/update/delete/start/stop/pause 等）。 |
+| operation_type    | varchar(64)  | 是   |                   | 操作类型（如 create/update/delete/start/stop/pause/搜索 等）。 |
 | operation_time    | datetime     | 是   | CURRENT_TIMESTAMP | 操作时间。 |
 | operation_details | text         | 否   |                   | 操作详情（结构化/半结构化文本；可考虑 JSON）。 |
 | create_time       | datetime     | 是   | CURRENT_TIMESTAMP | 创建时间（与 operation_time 一致或作为审计创建时间）。 |

@@ -3,9 +3,10 @@
     "port": "8081"
   },
   "storage": {
-    "pocketBaseURL": "http://127.0.0.1:8090/",
+    "pocketBaseURL": "http://127.0.0.1:8090",
+    "pocketBaseToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJwYmNfMzE0MjYzNTgyMyIsImV4cCI6MTc1NzI1NTA1MiwiaWQiOiJwaWJvcjZzb3BqaDNrN3MiLCJyZWZyZXNoYWJsZSI6ZmFsc2UsInR5cGUiOiJhdXRoIn0.48GmlBC50WSeb7Y6EU86xG6YkqcNJy_7TkxSjfSteL0",
     "meilisearchURL": "http://127.0.0.1:7700",
-    "meilisearchToken": "timigogogo"
+    "meilisearchToken": "masterKey"
   },
   "search": {
     "meilisearchURL": "http://127.0.0.1:7700",
@@ -16,6 +17,6 @@
     "webhookURL": "http://127.0.0.1:8081",
     "apiEndpoint": "http://127.0.0.1:8082",
     "managementServiceURL": "http://127.0.0.1:8090",
-    "managementServiceToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJwYmNfMzE0MjYzNTgyMyIsImV4cCI6MTc1NzE2ODM2NiwiaWQiOiJwaWJvcjZzb3BqaDNrN3MiLCJyZWZyZXNoYWJsZSI6ZmFsc2UsInR5cGUiOiJhdXRoIn0.qYKnNjmhHz7HjEir__7sTXtlRhmyratWsXengXkpdc8"
+    "managementServiceToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJwYmNfMzE0MjYzNTgyMyIsImV4cCI6MTc1NzI1NTA1MiwiaWQiOiJwaWJvcjZzb3BqaDNrN3MiLCJyZWZyZXNoYWJsZSI6ZmFsc2UsInR5cGUiOiJhdXRoIn0.48GmlBC50WSeb7Y6EU86xG6YkqcNJy_7TkxSjfSteL0"
   }
 }

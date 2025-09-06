@@ -1,82 +1,27 @@
-/*
- * 文件功能描述：机器人服务，处理Telegram机器人的初始化、配置和管理
- * 主要类/接口说明：BotService接口及其实现
- * 修改历史记录：
- * @author fcj
- * @date 2023-11-15
- * @version 1.0.0
- * © Telegram Bot Services Team
- */
-
-package service
+package handler
 
 import (
 	"bot-service/internal/config"
 	"bot-service/internal/index"
 	"bot-service/internal/user"
+	"bot-service/internal/usecase"
+	"encoding/json"
 	"fmt"
+	"html"
+	"io"
+	"log/slog"
+	"net/http"
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
-	"gopkg.in/telebot.v3"
+	"gopkg.in/telebot.v4"
 )
 
-var (
-	defaultBotService *botServiceImpl
-	once              sync.Once
-)
-
-// Init initializes the default bot service.
-func Init(botConfig BotConfig) (*telebot.Bot, error) {
-	var err error
-	var bot *telebot.Bot
-	once.Do(func() {
-		cfg, loadErr := config.LoadConfig("development")
-		if loadErr != nil {
-			err = fmt.Errorf("failed to load config: %w", loadErr)
-			return
-		}
-
-		storageService := NewStorageService(StorageConfig{
-			PocketBaseURL:    cfg.Storage.PocketBaseURL,
-			MeilisearchURL:   cfg.Storage.MeilisearchURL,
-			MeilisearchToken: cfg.Storage.MeilisearchToken,
-		})
-		searchService := NewSearchService(SearchConfig{
-			MeilisearchURL:       cfg.Search.MeilisearchURL,
-			MeilisearchKey:       cfg.Search.MeilisearchKey,
-			ManagementServiceURL: cfg.Search.ManagementServiceURL,
-		})
-		messageService := NewMessageService(storageService, searchService)
-
-		defaultBotService = &botServiceImpl{
-			bots: make(map[string]*telebot.Bot),
-		}
-
-		var initErr error
-		bot, initErr = defaultBotService.initBot(botConfig, cfg)
-		if initErr != nil {
-			err = initErr
-			return
-		}
-		defaultBotService.registerHandlers(bot, messageService)
-	})
-	if err != nil {
-		return nil, err
-	}
-	if bot == nil {
-		bot, _ = defaultBotService.getBot(botConfig.Token)
-	}
-	return bot, nil
-}
-
-// ProcessUpdate processes a webhook update.
-func ProcessUpdate(token string, update *telebot.Update) error {
-	if defaultBotService == nil {
-		return fmt.Errorf("service not initialized")
-	}
-	return defaultBotService.processUpdate(token, update)
+type GetChatMemberCountResponse struct {
+	Ok     bool `json:"ok"`
+	Result int  `json:"result"`
 }
 
 // BotConfig 定义机器人配置
@@ -92,46 +37,37 @@ type BotConfig struct {
 	ManagementServiceToken string `json:"management_service_token"`
 }
 
-// BotService 定义机器人服务接口
-// @author fcj
-// @date 2023-11-15
-// @version 1.0.0
-type BotService interface {
-	// initBot 初始化机器人
-	initBot(config BotConfig, fullConfig *config.Config) (*telebot.Bot, error)
-
-	// getBot 获取机器人实例
-	getBot(token string) (*telebot.Bot, bool)
-
-	// processUpdate 处理Webhook更新
-	processUpdate(token string, update *telebot.Update) error
-
-	// registerHandlers 注册消息处理函数
-	registerHandlers(bot *telebot.Bot, messageService MessageService)
+// BotHandler 定义机器人处理器接口
+type BotHandler interface {
+	InitBot(config BotConfig, fullConfig *config.Config) (*telebot.Bot, error)
+	GetBot(token string) (*telebot.Bot, bool)
+	ProcessUpdate(token string, update *telebot.Update) error
+	RegisterHandlers(bot *telebot.Bot)
 }
 
-// botServiceImpl 实现BotService接口
-// @author fcj
-// @date 2023-11-15
-// @version 1.0.0
-type botServiceImpl struct {
-	bots    map[string]*telebot.Bot
-	mutex   sync.RWMutex
-	configs []BotConfig
+// botHandlerImpl 实现 BotHandler 接口
+type botHandlerImpl struct {
+	bots           map[string]*telebot.Bot
+	mutex          sync.RWMutex
+	messageUsecase usecase.MessageUsecase
+	cfg            *config.Config
 }
 
-// initBot 初始化机器人
-// @author fcj
-// @date 2023-11-15
-// @version 1.0.0
-// @param config 机器人配置
-// @return error 错误信息
-func (b *botServiceImpl) initBot(botConfig BotConfig, cfg *config.Config) (*telebot.Bot, error) {
+// NewBotHandler 创建新的机器人处理器实例
+func NewBotHandler(messageUsecase usecase.MessageUsecase, cfg *config.Config) BotHandler {
+	return &botHandlerImpl{
+		bots:           make(map[string]*telebot.Bot),
+		messageUsecase: messageUsecase,
+		cfg:            cfg,
+	}
+}
+
+// InitBot 初始化机器人
+func (b *botHandlerImpl) InitBot(botConfig BotConfig, cfg *config.Config) (*telebot.Bot, error) {
 	bot, err := telebot.NewBot(telebot.Settings{
 		Token: botConfig.Token,
-		URL:   cfg.Bot.APIEndpoint, // 仅用于本地机器人API服务器
+		URL:   cfg.Bot.APIEndpoint,
 	})
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to init bot %s: %v", botConfig.Token, err)
 	}
@@ -140,15 +76,11 @@ func (b *botServiceImpl) initBot(botConfig BotConfig, cfg *config.Config) (*tele
 	b.bots[botConfig.Token] = bot
 	b.mutex.Unlock()
 
-	//打印机器人信息
 	fmt.Printf("Bot %v initialized\n", bot)
-	// Set webhook. This only registers the URL with Telegram.
-	// The actual HTTP server that listens for updates is started in main.go.
-	listenUrl := cfg.Bot.WebhookURL + "/webhook?token=" + botConfig.Token
-	fmt.Printf("Setting webhook %s\n", listenUrl)
+	listenURL := cfg.Bot.WebhookURL + "/webhook?token=" + botConfig.Token
+	fmt.Printf("Setting webhook %s\n", listenURL)
 
-	webhook := &telebot.Webhook{Endpoint: &telebot.WebhookEndpoint{PublicURL: listenUrl}}
-	//打印日志
+	webhook := &telebot.Webhook{Endpoint: &telebot.WebhookEndpoint{PublicURL: listenURL}}
 	if err := bot.SetWebhook(webhook); err != nil {
 		return nil, fmt.Errorf("failed to set webhook for bot %s: %v", botConfig.Token, err)
 	}
@@ -156,45 +88,61 @@ func (b *botServiceImpl) initBot(botConfig BotConfig, cfg *config.Config) (*tele
 	return bot, nil
 }
 
-// getBot 获取机器人实例
-// @author fcj
-// @date 2023-11-15
-// @version 1.0.0
-// @param token 机器人令牌
-// @return *telebot.Bot 机器人实例
-// @return bool 是否存在
-func (b *botServiceImpl) getBot(token string) (*telebot.Bot, bool) {
+// GetBot 获取机器人实例
+func (b *botHandlerImpl) GetBot(token string) (*telebot.Bot, bool) {
 	b.mutex.RLock()
 	defer b.mutex.RUnlock()
-
 	bot, exists := b.bots[token]
 	return bot, exists
 }
 
-// processUpdate 处理Webhook更新
-// @author fcj
-// @date 2023-11-15
-// @version 1.0.0
-// @param token 机器人令牌
-// @param update Webhook更新
-// @return error 错误信息
-func (b *botServiceImpl) processUpdate(token string, update *telebot.Update) error {
-	bot, exists := b.getBot(token)
+// ProcessUpdate 处理Webhook更新
+func (b *botHandlerImpl) ProcessUpdate(token string, update *telebot.Update) error {
+	bot, exists := b.GetBot(token)
 	if !exists {
 		return fmt.Errorf("bot not found: %s", token)
 	}
-
 	bot.ProcessUpdate(*update)
 	return nil
 }
 
-// registerHandlers 注册消息处理函数
+// getChatMemberCount 使用对 Telegram Bot API 的直接 HTTP 调用来检索聊天中的成员数。
+func getChatMemberCount(token string, chatID int64) (int, error) {
+	apiURL := fmt.Sprintf("https://api.telegram.org/bot%s/getChatMemberCount?chat_id=%d", token, chatID)
+	resp, err := http.Get(apiURL)
+	if err != nil {
+		slog.Error("获取聊天成员数量失败", "error", err)
+		return 0, fmt.Errorf("failed to get chat member count: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		slog.Error("读取响应体失败", "error", err)
+		return 0, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	var chatMemberCountResp GetChatMemberCountResponse
+	if err := json.Unmarshal(body, &chatMemberCountResp); err != nil {
+		slog.Error("解析 JSON 响应失败", "error", err)
+		return 0, fmt.Errorf("failed to unmarshal json response: %w", err)
+	}
+
+	if !chatMemberCountResp.Ok {
+		slog.Error("API 响应不成功", "body", string(body))
+		return 0, fmt.Errorf("telegram API error: %s", string(body))
+	}
+	// 打印日志
+	slog.Info("获取聊天成员数量成功", "chat_id", chatID, "member_count", chatMemberCountResp.Result)
+	return chatMemberCountResp.Result, nil
+}
+
+// RegisterHandlers 注册消息处理函数
 // @author fcj
 // @date 2023-11-15
 // @version 1.0.0
 // @param bot 机器人实例
-// @param messageService 消息服务
-func (b *botServiceImpl) registerHandlers(bot *telebot.Bot, messageService MessageService) {
+func (b *botHandlerImpl) RegisterHandlers(bot *telebot.Bot) {
 	// 处理文本消息
 	bot.Handle(telebot.OnText, func(c telebot.Context) error {
 		text := c.Text()
@@ -232,6 +180,30 @@ func (b *botServiceImpl) registerHandlers(bot *telebot.Bot, messageService Messa
 				if chat.Type == telebot.ChatPrivate {
 					description = fullChat.Bio
 				}
+				memberCount, err := getChatMemberCount(bot.Token, chat.ID)
+				if err != nil {
+					slog.Error("获取成员数量失败", "error", err, "chat", chat.Username)
+
+					// 发送带有按钮的错误消息
+					message := "获取用户数量失败，请将机器人拉入群组后重试。"
+					inlineKeys := [][]telebot.InlineButton{
+						{
+							{
+								Text: "🔄 重新获取",
+								Data: "retry_index:" + text, // text 是原始的 https://t.me/... 链接
+							},
+							{
+								Text: "➕ 添加到群组/频道",
+								URL:  fmt.Sprintf("https://t.me/%s?startgroup=true", bot.Me.Username),
+							},
+						},
+					}
+					return c.Send(message, &telebot.SendOptions{
+						ReplyMarkup: &telebot.ReplyMarkup{InlineKeyboard: inlineKeys},
+					})
+				}
+
+				// 如果成功，继续索引
 				data := map[string]interface{}{
 					"chat_id":       fmt.Sprintf("%d", chat.ID),
 					"type":          string(chat.Type),
@@ -240,45 +212,82 @@ func (b *botServiceImpl) registerHandlers(bot *telebot.Bot, messageService Messa
 					"first_name":    chat.FirstName,
 					"last_name":     chat.LastName,
 					"description":   description,
-					"is_verified":   false, // 默认值，因为 Verified 未定义
-					"members_count": 0,     // 默认值，因为 MemberCount 未定义；可添加单独查询
+					"is_verified":   false,
+					"members_count": memberCount,
 					"created_at":    time.Now().Format("2006-01-02T15:04:05Z07:00"),
 					"updated_at":    time.Now().Format("2006-01-02T15:04:05Z07:00"),
 					"invite_link":   fullChat.InviteLink,
-					// 添加更多可用字段
 				}
 				fmt.Printf("Data to save: %+v\n", data)
-				if err := index.SaveTelegramIndex(data); err != nil {
+				if err := index.SaveTelegramIndex(b.cfg, data); err != nil {
 					fmt.Printf("Error saving index: %v\n", err)
 					return err
 				}
 				fmt.Println("Index saved successfully")
-				return c.Send("已索引聊天信息")
+
+				// 构建并发送成功消息
+				successMessage := fmt.Sprintf(
+					"<b>群组收录成功</b>\n\n"+
+						"<b>标题:</b> %s\n"+
+						"<b>用户名:</b> @%s\n"+
+						"<b>描述:</b> %s\n"+
+						"<b>成员数量:</b> %d",
+					html.EscapeString(chat.Title),
+					html.EscapeString(chat.Username),
+					html.EscapeString(description),
+					memberCount,
+				)
+				return c.Send(successMessage, &telebot.SendOptions{ParseMode: telebot.ModeHTML})
 			}
 		}
 
-		// 如果文本较短，视为搜索查询
-		if len([]rune(text)) <= 10 {
-			return messageService.SearchWithPagination(c, text, 1, "message")
+		// 如果文本长度小于10，则触发搜索
+		if utf8.RuneCountInString(text) < 10 {
+			return b.messageUsecase.SearchWithPagination(c, text, 1, "")
 		}
 
-		// 否则保存消息
-		data := map[string]interface{}{
-			"message_id": c.Message().ID,
-			"chat_id":    c.Chat().ID,
-			"chat_title": c.Chat().Title,
-			"chat_type":  string(c.Chat().Type),
-			"text":       text,
-			"sender_id":  fmt.Sprintf("user_%d", c.Sender().ID),
+		// 默认保存消息
+		// 首先，为 operation_details 字段创建一个详细信息映射
+		details := map[string]interface{}{
+			"message_id":    c.Message().ID,
+			"chat_id":       c.Chat().ID,
+			"chat_title":    c.Chat().Title,
+			"chat_username": c.Chat().Username,
+			"chat_type":     string(c.Chat().Type),
+			"text":          text,
 			"sender_is_bot": c.Sender().IsBot,
-			"date":       c.Message().Time().Format("2006-01-02T15:04:05Z07:00"),
+			"date":          c.Message().Time().Format("2006-01-02T15:04:05Z07:00"),
 		}
 
-		return messageService.SaveMessage(data)
+		detailsJSON, err := json.Marshal(details)
+		if err != nil {
+			// 记录错误，但不阻止用户
+			fmt.Printf("ERROR: Failed to marshal operation details: %v\n", err)
+		}
+
+		data := map[string]interface{}{
+			"user":              c.Sender().ID,
+			"bot_id":            fmt.Sprintf("%d", bot.Me.ID),
+			"operation_type":    "save_message",
+			"operation_time":    time.Now().Format("2006-01-02T15:04:05Z07:00"),
+			"operation_details": string(detailsJSON),
+			"create_time":       time.Now().Format("2006-01-02T15:04:05Z07:00"),
+		}
+
+		return b.messageUsecase.SaveMessage(data)
 	})
 
 	// 处理回调查询
-	bot.Handle(telebot.OnCallback, messageService.HandleCallback)
+	bot.Handle(telebot.OnCallback, b.messageUsecase.HandleCallback)
+
+	// /search 命令处理
+	bot.Handle("/search", func(c telebot.Context) error {
+		query := c.Message().Payload
+		if query == "" {
+			return c.Send("Please provide a search query. Usage: /search <query>")
+		}
+		return b.messageUsecase.SearchWithPagination(c, query, 1, "")
+	})
 
 	// /start 命令处理
 	bot.Handle("/start", func(c telebot.Context) error {
@@ -307,7 +316,8 @@ func (b *botServiceImpl) registerHandlers(bot *telebot.Bot, messageService Messa
 				telebot.InlineButton{Text: "搜索大群", URL: "https://t.me/SoSo00000000001"},
 				telebot.InlineButton{Text: "搜索每日更新频道", URL: "https://t.me/SoSo00000000002"},
 			},
-			{telebot.InlineButton{Text: "搜索消息监听", URL: "https://t.me/SoSo00000000003"},
+			{
+				telebot.InlineButton{Text: "搜索消息监听", URL: "https://t.me/SoSo00000000003"},
 				telebot.InlineButton{
 					Text: "🚀 打开小程序",
 					WebApp: &telebot.WebApp{
@@ -327,13 +337,24 @@ func (b *botServiceImpl) registerHandlers(bot *telebot.Bot, messageService Messa
 
 	// 帮助命令
 	bot.Handle("/help", func(c telebot.Context) error {
-		helpText := `Available commands:
-        /help - Show this help message
-        /clong - Clone the bot
-        /sponsor - Support the bot
-        /mini - Enter mini mode
-        Send a query (10 chars or less) to search with pagination and filters.`
-		return c.Send(helpText)
+		helpText := `<b>可用命令列表：</b>
+
+/help - 显示此帮助信息
+/search <关键词> - 搜索群组、频道和消息
+/clong - 克隆机器人
+/sponsor - 支持我们
+/mini - 打开小程序
+/disclaimer - 查看免责声明
+
+<b>使用说明：</b>
+1. 直接发送消息给机器人，消息会被保存到您的个人收藏夹
+2. 使用 /search 命令搜索群组、频道和消息
+3. 搜索结果支持分页和过滤功能
+4. 点击搜索结果中的链接可以直接访问`
+
+		return c.Send(helpText, &telebot.SendOptions{
+			ParseMode: telebot.ModeHTML,
+		})
 	})
 
 	// 克隆命令
@@ -409,20 +430,3 @@ Visit https://your-repo.com for details.`
 		})
 	})
 }
-
-/*
- * 关键算法说明：
- * 1. 机器人管理：使用线程安全的map管理多个机器人实例
- * 2. Webhook处理：接收和处理Telegram Webhook更新
- * 3. 消息路由：根据消息类型和内容路由到不同的处理函数
- *
- * 待优化事项：
- * 1. 动态配置：支持动态添加和移除机器人
- * 2. 状态监控：添加机器人状态监控和健康检查
- * 3. 错误处理：改进错误处理和恢复机制
- *
- * 兼容性说明：
- * 1. 依赖telebot.v3库
- * 2. 需要有效的Telegram Bot Token
- * 3. 需要配置正确的Webhook URL
- */

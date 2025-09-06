@@ -12,12 +12,7 @@ import (
 )
 
 // SaveTelegramIndex saves the telegram index data to the management service.
-func SaveTelegramIndex(data map[string]interface{}) error {
-	cfg, err := config.LoadConfig("development")
-	if err != nil {
-		return fmt.Errorf("failed to load config: %w", err)
-	}
-
+func SaveTelegramIndex(cfg *config.Config, data map[string]interface{}) error {
 	baseURL := cfg.Bot.ManagementServiceURL + "/api/collections/telegram_index/records"
 	chatID, ok := data["chat_id"].(string)
 	if !ok {
@@ -125,6 +120,12 @@ func SaveTelegramIndex(data map[string]interface{}) error {
 		}
 		// Wait for task to complete (simplified, in production use task status)
 		time.Sleep(2 * time.Second)
+
+		// Update index settings
+		if err := updateIndexSettings(cfg); err != nil {
+			// Log the error but don't fail the whole process, as settings can be applied later
+			log.Printf("failed to update meilisearch settings: %v", err)
+		}
 	}
 
 	// Index to MeiliSearch
@@ -160,5 +161,67 @@ func SaveTelegramIndex(data map[string]interface{}) error {
 		return fmt.Errorf("MeiliSearch indexing failed with status: %d, body: %s", meiliResp.StatusCode, string(body))
 	}
 
+	return nil
+}
+
+// updateIndexSettings updates the MeiliSearch index settings.
+func updateIndexSettings(cfg *config.Config) error {
+	settings := map[string]interface{}{
+		"searchableAttributes": []string{
+			"title",
+			"username",
+			"description",
+			"first_name",
+			"last_name",
+		},
+		"filterableAttributes": []string{
+			"type",
+			"is_verified",
+			"is_restricted",
+			"is_scam",
+			"is_fake",
+			"language_code",
+			"tags",
+			"content_types",
+			"members_count",
+			"sender_is_bot",
+		},
+		"rankingRules": []string{
+			"words",
+			"typo",
+			"proximity",
+			"attribute",
+			"sort",
+			"exactness",
+			"members_count:desc",
+		},
+	}
+
+	settingsJSON, err := json.Marshal(settings)
+	if err != nil {
+		return fmt.Errorf("failed to marshal index settings: %w", err)
+	}
+
+	settingsURL := cfg.Storage.MeilisearchURL + "/indexes/telegram_index/settings"
+	req, err := http.NewRequest("POST", settingsURL, bytes.NewBuffer(settingsJSON))
+	if err != nil {
+		return fmt.Errorf("failed to create settings update request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer " + cfg.Storage.MeilisearchToken)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to update index settings: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusAccepted {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("index settings update failed with status: %d, body: %s", resp.StatusCode, string(body))
+	}
+
+	log.Println("MeiliSearch index settings updated successfully.")
 	return nil
 }
