@@ -143,41 +143,45 @@ func (m *messageServiceImpl) BuildSearchResponse(query string, page int, filter 
 		}
 		response += fmt.Sprintf("<b>%d. %s</b>\n<i>%s</i>\n📅 %s\n\n", i+1+(page-1)*5, displayTitle, escapeHTML(text), escapeHTML(date))
 	}
-	var buttons []telebot.InlineButton
+	var buttonRows [][]telebot.InlineButton
+
+	// Row 1: Pagination
+	paginationRow := []telebot.InlineButton{}
 	if page > 1 {
-		buttons = append(buttons, telebot.InlineButton{Text: "上一页", Data: fmt.Sprintf("prev_%d_%s", page, filter)})
+		paginationRow = append(paginationRow, telebot.InlineButton{Text: "上一页", Data: fmt.Sprintf("prev_%d_%s", page, filter)})
 	}
-	buttons = append(buttons, telebot.InlineButton{Text: fmt.Sprintf("%d/%d", page, totalPages), Data: "current"})
+	paginationRow = append(paginationRow, telebot.InlineButton{Text: fmt.Sprintf("%d/%d", page, totalPages), Data: "current"})
 	if page < totalPages {
-		buttons = append(buttons, telebot.InlineButton{Text: "下一页", Data: fmt.Sprintf("next_%d_%s", page, filter)})
+		paginationRow = append(paginationRow, telebot.InlineButton{Text: "下一页", Data: fmt.Sprintf("next_%d_%s", page, filter)})
 	}
-	filterButtons := []struct {
-		Text   string
-		Value  string
-		Active bool
+	buttonRows = append(buttonRows, paginationRow)
+
+	// Subsequent rows: Filters
+	filterModels := []struct {
+		Text  string
+		Value string
 	}{
-		{"全部", "all", filter == "" || filter == "all"},
-		{"群组", "group", filter == "group"},
-		{"频道", "channel", filter == "channel"},
-		{"机器人", "bot", filter == "bot"},
-		{"消息", "message", filter == "message"},
+		{"全部", "all"}, {"群组", "group"}, {"频道", "channel"}, {"机器人", "bot"}, {"消息", "message"},
 	}
-	for _, btn := range filterButtons {
-		text := btn.Text
-		if btn.Active {
+
+	var filterButtons []telebot.InlineButton
+	for _, model := range filterModels {
+		text := model.Text
+		if (filter == "" && model.Value == "all") || filter == model.Value {
 			text = "✅ " + text
 		}
-		buttons = append(buttons, telebot.InlineButton{Text: text, Data: fmt.Sprintf("filter_%s_%d", btn.Value, page)})
+		filterButtons = append(filterButtons, telebot.InlineButton{Text: text, Data: fmt.Sprintf("filter_%s_%d", model.Value, page)})
 	}
-	var buttonRows [][]telebot.InlineButton
-	buttonRows = append(buttonRows, buttons[:3])
-	for i := 3; i < len(buttons); i += 3 {
-		end := i + 3
-		if end > len(buttons) {
-			end = len(buttons)
+
+	const maxButtonsPerRow = 3
+	for i := 0; i < len(filterButtons); i += maxButtonsPerRow {
+		end := i + maxButtonsPerRow
+		if end > len(filterButtons) {
+			end = len(filterButtons)
 		}
-		buttonRows = append(buttonRows, buttons[i:end])
+		buttonRows = append(buttonRows, filterButtons[i:end])
 	}
+
 	log.Printf("Generated %d button rows for page %d, filter '%s'", len(buttonRows), page, filter)
 	return response, buttonRows, nil
 }

@@ -1,1 +1,0 @@
-import{json as t}from"@sveltejs/kit";async function e(){return await new Promise(t=>setTimeout(t,200)),t({code:200,data:{bots:[{id:"bot-1",name:"tg_search_bot",status:"online",lastActive:(new Date).toISOString()}]}})}export{e as GET};
