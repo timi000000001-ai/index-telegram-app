@@ -23,7 +23,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
 	"gopkg.in/telebot.v4"
 )
 
@@ -47,12 +46,13 @@ type MessageUsecase interface {
 
 // SearchResponse defines the structure for a MeiliSearch search response.
 type SearchResponse struct {
-	Hits               []map[string]interface{} `json:"hits"`
-	EstimatedTotalHits int64                    `json:"estimatedTotalHits"`
-	Query              string                   `json:"query"`
-	Limit              int64                    `json:"limit"`
-	Offset             int64                    `json:"offset"`
-	ProcessingTimeMs   int64                    `json:"processingTimeMs"`
+	Hits           []map[string]interface{} `json:"hits"`
+	Query          string                   `json:"query"`
+	ProcessingTimeMs int64                  `json:"processingTimeMs"`
+	HitsPerPage    int64                    `json:"hitsPerPage"`
+	Page           int64                    `json:"page"`
+	TotalPages     int64                    `json:"totalPages"`
+	TotalHits      int64                    `json:"totalHits"`
 }
 
 type validationCacheEntry struct {
@@ -244,17 +244,21 @@ func (m *messageUsecaseImpl) SaveMessage(data map[string]interface{}) error {
 }
 
 // buildSearchResponse builds the search response string and buttons.
-func (m *messageUsecaseImpl) buildSearchResponse(query string, page int, filter string, searchResult *SearchResponse) (string, [][]telebot.InlineButton, error) {
-	log.Printf("INFO: Building search response: query='%s', page=%d, filter='%s'", query, page, filter)
+func (m *messageUsecaseImpl) buildSearchResponse(query string, filter string, searchResult *SearchResponse) (string, [][]telebot.InlineButton, error) {
+	log.Printf("INFO: Building search response: query='%s', filter='%s', page=%d", query, filter, searchResult.Page)
 
 	if len(searchResult.Hits) == 0 {
 		return "<i>No results found for: </i>" + html.EscapeString(query), nil, nil
 	}
 
-	limit := int64(20)
-	totalPages := (searchResult.EstimatedTotalHits + limit - 1) / limit
+	currentPage := searchResult.Page
+	totalPages := searchResult.TotalPages
+	hitsPerPage := searchResult.HitsPerPage
+	if hitsPerPage <= 0 {
+		hitsPerPage = 10 // Fallback
+	}
 
-	response := fmt.Sprintf("<b>🔍 关键字: %s</b> (第 %d 页 / 共 %d 页)\n\n", html.EscapeString(query), page, totalPages)
+	response := fmt.Sprintf("<b>🔍 关键字: %s</b> (第 %d 页 / 共 %d 页)\n\n", html.EscapeString(query), currentPage, totalPages)
 	for i, hit := range searchResult.Hits {
 
 		chatTitle := hit["TITLE"]
@@ -293,7 +297,7 @@ func (m *messageUsecaseImpl) buildSearchResponse(query string, page int, filter 
 				if chatUsername, ok := hit["USERNAME"].(string); ok && chatUsername != "" {
 					jumpLink = fmt.Sprintf(" <a href=\"https://t.me/%s/%d\">(跳转)</a>", chatUsername, messageID)
 				}
-				response += fmt.Sprintf("<b>%d. 💬 消息</b> from %s%s\n", i+1+((page-1)*20), displayTitle, jumpLink)
+				response += fmt.Sprintf("<b>%d. 💬 消息</b> from %s%s\n", i+1+int((currentPage-1)*hitsPerPage), displayTitle, jumpLink)
 				response += fmt.Sprintf("<blockquote>%s</blockquote>\n", html.EscapeString(messageText))
 			}
 		} else {
@@ -316,18 +320,18 @@ func (m *messageUsecaseImpl) buildSearchResponse(query string, page int, filter 
 			if membersCount, ok := hit["MEMBERS_COUNT"].(float64); ok && membersCount > 0 {
 				membersCountStr = fmt.Sprintf(" %d", int(membersCount))
 			}
-			response += fmt.Sprintf("<b>%d. %s</b> %s%s\n\n", i+1+((page-1)*20), displayTitle, typeEmoji, membersCountStr)
+			response += fmt.Sprintf("<b>%d. %s</b> %s%s\n\n", i+1+int((currentPage-1)*hitsPerPage), displayTitle, typeEmoji, membersCountStr)
 		}
 	}
 
 	var buttonRows [][]telebot.InlineButton
 	paginationRow := []telebot.InlineButton{}
-	if page > 1 {
-		paginationRow = append(paginationRow, telebot.InlineButton{Text: "⬅️ 上一页", Data: fmt.Sprintf("prev_%s_%s", query, filter)})
+	if currentPage > 1 {
+		paginationRow = append(paginationRow, telebot.InlineButton{Text: "⬅️ 上一页", Data: fmt.Sprintf("prev_%s_%s", filter, query)})
 	}
-	paginationRow = append(paginationRow, telebot.InlineButton{Text: fmt.Sprintf("%d/%d", page, totalPages), Data: "current"})
-	if int64(page) < totalPages {
-		paginationRow = append(paginationRow, telebot.InlineButton{Text: "下一页 ➡️", Data: fmt.Sprintf("next_%s_%s", query, filter)})
+	paginationRow = append(paginationRow, telebot.InlineButton{Text: fmt.Sprintf("%d/%d", currentPage, totalPages), Data: "current"})
+	if currentPage < totalPages {
+		paginationRow = append(paginationRow, telebot.InlineButton{Text: "下一页 ➡️", Data: fmt.Sprintf("next_%s_%s", filter, query)})
 	}
 	buttonRows = append(buttonRows, paginationRow)
 
@@ -387,7 +391,7 @@ func (m *messageUsecaseImpl) SearchWithPagination(c telebot.Context, query strin
 	}
 	go m.validateUsernamesAsync(hits)
 
-	response, buttonRows, err := m.buildSearchResponse(query, page, filter, &searchResult)
+	response, buttonRows, err := m.buildSearchResponse(query, filter, &searchResult)
 	if err != nil {
 		log.Printf("ERROR: Failed to build search response: %v", err)
 		return c.Send("构建搜索结果失败。")
@@ -438,8 +442,9 @@ func (m *messageUsecaseImpl) HandleCallback(c telebot.Context) error {
 
 	if newText != "" {
 		return c.Edit(newText, &telebot.SendOptions{
-			ParseMode:   telebot.ModeHTML,
-			ReplyMarkup: &telebot.ReplyMarkup{InlineKeyboard: newMarkup},
+			ParseMode:             telebot.ModeHTML,
+			ReplyMarkup:           &telebot.ReplyMarkup{InlineKeyboard: newMarkup},
+			DisableWebPagePreview: true,
 		})
 	}
 
@@ -453,11 +458,24 @@ func (m *messageUsecaseImpl) HandleReviewCallback(c telebot.Context) error {
 
 	if strings.HasPrefix(data, "delete_doc_") {
 		docID := strings.TrimPrefix(data, "delete_doc_")
-		err = m.searchRepo.DeleteDocument(docID)
-		if err != nil {
-			responseText = "❌ 删除失败"
+		if docID == "" {
+			responseText = "❌ 删除失败: 无效的文档ID"
+			log.Printf("ERROR: Attempted to delete document with empty ID.")
 		} else {
-			responseText = fmt.Sprintf("✅ 文档 %s 已被删除。", docID)
+			// 添加额外的安全检查，确保 docID 不为空且格式有效
+			if strings.Contains(docID, "/") || strings.Contains(docID, "\\") {
+				responseText = "❌ 删除失败: 无效的文档ID格式"
+				log.Printf("ERROR: Invalid document ID format: %s", docID)
+			} else {
+				err = m.searchRepo.DeleteDocument(docID)
+				if err != nil {
+					responseText = "❌ 删除失败"
+					log.Printf("ERROR: Failed to delete document %s: %v", docID, err)
+				} else {
+					responseText = fmt.Sprintf("✅ 文档 %s 已被删除。", docID)
+					log.Printf("INFO: Successfully deleted document %s", docID)
+				}
+			}
 		}
 	} else if strings.HasPrefix(data, "keep_doc_") {
 		docID := strings.TrimPrefix(data, "keep_doc_")
@@ -468,7 +486,8 @@ func (m *messageUsecaseImpl) HandleReviewCallback(c telebot.Context) error {
 
 	// Edit the original message to show the result
 	err = c.Edit(responseText, &telebot.SendOptions{
-		ParseMode: telebot.ModeHTML,
+		ParseMode:             telebot.ModeHTML,
+		DisableWebPagePreview: true,
 	})
 	if err != nil {
 		log.Printf("ERROR: Failed to edit message for review callback: %v", err)
@@ -481,48 +500,51 @@ func (m *messageUsecaseImpl) HandleReviewCallback(c telebot.Context) error {
 
 // handleCallbackLogic contains the testable logic for handling callbacks.
 func (m *messageUsecaseImpl) handleCallbackLogic(data, messageText string) (string, [][]telebot.InlineButton, error) {
-	parts := strings.Split(data, "_")
+	// Callback data format: action_filter_query
+	// Use SplitN to correctly handle queries that may contain underscores.
+	parts := strings.SplitN(data, "_", 3)
+	if len(parts) < 1 {
+		return "", nil, errors.New("invalid callback data")
+	}
 	action := parts[0]
+
+	if action == "current" {
+		return "", nil, nil // No action needed for the current page button
+	}
+
+	// For prev/next/filter, we need the full callback data.
+	if len(parts) < 3 {
+		return "", nil, fmt.Errorf("incomplete callback data: %s", data)
+	}
 
 	var query, filter string
 	var page = 1
 
-	// Extract query, filter, and page from callback data or message text
-	if len(parts) > 2 {
-		query = parts[2]
-		if len(parts) > 1 {
-			filter = parts[1]
-		}
-	} else {
-		reQuery := regexp.MustCompile(`<b>🔍 关键字: (.+?)</b>`)
-		queryMatches := reQuery.FindStringSubmatch(messageText)
-		if len(queryMatches) < 2 {
-			return "", nil, errors.New("无法解析查询关键字")
-		}
-		query = html.UnescapeString(queryMatches[1])
-	}
-
+	// Extract current page from the message text.
 	rePage := regexp.MustCompile(`\(第 (\d+) 页 / 共 (\d+) 页\)`)
 	pageMatches := rePage.FindStringSubmatch(messageText)
 	if len(pageMatches) >= 2 {
 		page, _ = strconv.Atoi(pageMatches[1])
 	}
 
+	filter = parts[1]
+	query = parts[2]
+
 	switch action {
 	case "filter":
-		filter = parts[1]
-		query = parts[2]
-		page = 1
+		page = 1 // Reset to the first page when filter changes
 	case "prev":
-		page--
+		if page > 1 {
+			page--
+		}
 	case "next":
 		page++
-	case "current":
-		return "", nil, nil
+	default:
+		return "", nil, fmt.Errorf("unknown action: %s", action)
 	}
 
 	// Perform the search again with the new parameters
-	limit := 20
+	limit := 10
 	searchResultRaw, err := m.searchRepo.Search(query, page, limit, filter)
 	if err != nil {
 		return "", nil, fmt.Errorf("搜索失败: %w", err)
@@ -534,7 +556,7 @@ func (m *messageUsecaseImpl) handleCallbackLogic(data, messageText string) (stri
 		return "", nil, fmt.Errorf("搜索失败: 无法解析搜索结果。")
 	}
 
-	return m.buildSearchResponse(query, page, filter, &searchResult)
+	return m.buildSearchResponse(query, filter, &searchResult)
 }
 
 // sendReviewNotification sends a message to the review channel.
@@ -557,9 +579,25 @@ func (m *messageUsecaseImpl) sendReviewNotification(bot *telebot.Bot, hit map[st
 			return
 		}
 		reviewChat := &telebot.Chat{ID: reviewChannelID}
-		docID, _ := hit["ID"].(string)
+		var docID string
+		if idVal, ok := hit["id"]; ok {
+			switch v := idVal.(type) {
+			case string:
+				docID = v
+			case float64:
+				docID = strconv.FormatFloat(v, 'f', 0, 64)
+			default:
+				log.Printf("ERROR: docID is of an unexpected type (%T) in sendReviewNotification. hit: %v", v, hit)
+				return
+			}
+		}
+
+		if docID == "" {
+			log.Printf("ERROR: docID is empty after conversion in sendReviewNotification. hit: %v", hit)
+			return
+		}
 		chatUsername, _ := hit["USERNAME"].(string)
-	message := fmt.Sprintf("<b>【疑似失效】</b>\n请审核: <a href=\"https://t.me/%s\">@%s</a>\n文档ID: <code>%s</code>", chatUsername, html.EscapeString(chatTitle),  docID)
+		message := fmt.Sprintf("<b>【疑似失效】</b>\n请审核: <a href=\"https://t.me/%s\">@%s</a>\n文档ID: <code>%s</code>", chatUsername, html.EscapeString(chatTitle), docID)
 		inlineKeys := [][]telebot.InlineButton{
 			{
 				telebot.InlineButton{Text: "❌ 确认失效 (删除)", Data: fmt.Sprintf("delete_doc_%s", docID)},

@@ -10,7 +10,7 @@
 
 import { onMount, onDestroy } from 'svelte';
 import { browser } from '$app/environment';
-import { searchAPI, botAPI, userAPI } from '$lib/api.js';
+import { Meilisearch } from 'meilisearch';
 import GroupModal from '$lib/components/GroupModal.svelte';
 
 import CollectionModal from '$lib/components/CollectionModal.svelte';
@@ -134,6 +134,13 @@ function totalPages() {
   return Math.ceil(total / size);
 }
 
+const client = new Meilisearch({
+  host: 'http://127.0.0.1:7700',
+  apiKey: 'timigogogo',
+});
+
+const index = client.index('telegram_index');
+
 // ===================== API 调用 =====================
 
 
@@ -151,19 +158,25 @@ async function search() {
   const startTime = Date.now();
 
   try {
-    const params = {
-      q: query.trim(),
-      page: String(page),
-      limit: String(size),
-      sort,
-      filter: filters.type || 'all',
-    };
+    const searchResults = await index.search(query.trim(), {
+      page: page,
+      hitsPerPage: size,
+      filter: [`TYPE IN [${Object.entries(filters.types).filter(([_,v]) => v).map(([k,_])=>`'${k}'`).join(', ')}]`]
+    });
+    results = searchResults.hits.map(hit => {
+      /** @type {{[key: string]: any}} */
+      const newHit = {};
+      for (const key in hit) {
+        newHit[key.toLowerCase()] = /** @type {any} */ (hit)[key];
+      }
+      if (newHit.link && typeof newHit.link === 'string') {
+        newHit.link = newHit.link.replace(/`/g, '').trim();
+      }
+      return newHit;
+    });
+    total = searchResults.totalHits ?? 0;
+    elapsedMs = searchResults.processingTimeMs;
 
-    const data = await searchAPI.search(params);
-    
-    results = data.results || [];
-    total = data.total || 0;
-    elapsedMs = Date.now() - startTime;
   } catch (error) {
     console.error('搜索失败:', error);
     results = [];
@@ -173,47 +186,61 @@ async function search() {
   }
 }
 
-
-
 /**
-   * 获取搜索建议
-   * @param {string} q - 搜索查询字符串
-   * @returns {Promise<void>}
-   */
-  const fetchSuggestions = debounce(async (/** @type {string} */ q) => {
-    if (!q.trim() || q.length < 2) {
-      suggestions = [];
-      return;
-    }
-
-    isFetchingSuggestions = true;
-    try {
-      suggestions = await searchAPI.getSuggestions(q);
-    } catch (error) {
-      console.error('获取建议失败:', error);
-      suggestions = [];
-    } finally {
-      isFetchingSuggestions = false;
-    }
-  });
-
-  /**
-   * 获取热门搜索
-   * @returns {Promise<void>}
-   */
-  async function fetchTrending() {
-    isFetchingTrending = true;
-    try {
-      trending = await searchAPI.getTrending();
-    } catch (error) {
-      console.error('获取热门搜索失败:', error);
-      trending = [];
-    } finally {
-      isFetchingTrending = false;
-    }
+ * 获取搜索建议
+ * @param {string} currentQuery - 当前查询
+ * @returns {Promise<void>}
+ */
+async function fetchSuggestions(currentQuery) {
+  if (!currentQuery || currentQuery.length < 2) {
+    suggestions = [];
+    showSuggestions = true; // 即使没有建议，也要确保建议列表是“活动的”，以便显示历史记录或热门
+    return;
   }
 
-  // ===================== 辅助函数 =====================
+  isFetchingSuggestions = true;
+  try {
+    const response = await fetch(`/api/search/autocomplete?q=${encodeURIComponent(currentQuery)}`);
+    if (response.ok) {
+      const data = await response.json();
+      suggestions = data;
+    } else {
+      console.error('Failed to fetch suggestions');
+      suggestions = [];
+    }
+  } catch (error) {
+    console.error('Error fetching suggestions:', error);
+    suggestions = [];
+  } finally {
+    isFetchingSuggestions = false;
+    showSuggestions = true;
+  }
+}
+
+/**
+ * 获取热门搜索
+ */
+async function fetchTrending() {
+  isFetchingTrending = true;
+  try {
+    // This is a mock API, replace with your actual implementation
+    const mockTrending = [
+      { keyword: 'SvelteKit', rank: 1, count: 120, category: 'technology', trend: 'up' },
+      { keyword: 'Meilisearch', rank: 2, count: 105, category: 'technology', trend: 'hot' },
+      { keyword: 'TailwindCSS', rank: 3, count: 98, category: 'technology', trend: 'stable' },
+    ];
+    await new Promise(resolve => setTimeout(resolve, 500));
+    trending = mockTrending;
+
+  } catch (error) {
+    console.error('获取热门搜索失败:', error);
+    trending = [];
+  } finally {
+    isFetchingTrending = false;
+  }
+}
+
+// ===================== 辅助函数 =====================
 /**
  * 获取分类中文名称
  * @param {string} category - 分类英文名
@@ -264,6 +291,9 @@ function getTrendIcon(trend) {
 }
 
 // ===================== 事件处理 =====================
+
+const debouncedFetchSuggestions = debounce(fetchSuggestions, 300);
+
 /**
  * 处理搜索输入变化
  * @param {Event} e - 输入事件
@@ -272,7 +302,12 @@ function getTrendIcon(trend) {
 function onQueryInput(e) {
   const target = /** @type {HTMLInputElement} */ (e.target);
   query = target.value;
-  fetchSuggestions(query);
+  if (query.length > 0) {
+    showSuggestions = true;
+    debouncedFetchSuggestions(query);
+  } else {
+    showSuggestions = false;
+  }
 }
 
 /**
@@ -286,6 +321,7 @@ function selectSuggestion(suggestion) {
   showSuggestions = false;
   page = 1;
   search();
+  saveToHistory(query);
 }
 
 /**
@@ -324,9 +360,8 @@ function resetFilters() {
     types: {
       group: true,
       channel: true,
-      private: true,
-      media: true,
-      link: true,
+      bot: true,
+      message: true
     },
     timePreset: 'any',
     timeOrder: 'desc',
@@ -532,9 +567,15 @@ onMount(() => {
           placeholder="请输入搜索关键字（支持多个关键字，以空格分隔）"
           bind:value={query}
           on:input={onQueryInput}
-          on:focus={() => (showSuggestions = true)}
-          on:blur={() => setTimeout(() => (showSuggestions = false), 150)}
-          on:keydown={(e) => e.key === 'Enter' && (page=1, search())}
+          on:focus={() => query && (showSuggestions = true)}
+          on:blur={() => setTimeout(() => (showSuggestions = false), 200)}
+          on:keydown={(e) => {
+            if (e.key === 'Enter') {
+              showSuggestions = false;
+              search();
+              saveToHistory(query);
+            }
+          }}
         />
         
         <!-- 搜索图标 - 简化动画 -->
@@ -543,6 +584,38 @@ onMount(() => {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
           </svg>
         </div>
+        
+        <!-- 搜索建议下拉框 -->
+        {#if showSuggestions && (suggestions.length > 0 || isFetchingSuggestions || histories.length > 0)}
+          <div class="absolute top-full mt-2 w-full bg-white/90 backdrop-blur-md border border-blue-200/50 rounded-2xl shadow-lg z-20 overflow-hidden">
+            <!-- 加载中 -->
+            {#if isFetchingSuggestions}
+              <div class="p-4 text-center text-slate-500">正在加载建议...</div>
+            {/if}
+
+            <!-- 搜索建议 -->
+            {#each suggestions as suggestion}
+              <div class="px-4 py-2 cursor-pointer hover:bg-blue-100/50" on:mousedown={() => selectSuggestion(suggestion.query)}>
+                {@html suggestion.query}
+              </div>
+            {/each}
+
+            <!-- 搜索历史 -->
+            {#if !isFetchingSuggestions && suggestions.length === 0 && histories.length > 0}
+              <div class="p-2">
+                <div class="flex justify-between items-center px-2 py-1">
+                  <span class="text-sm font-semibold text-slate-600">搜索历史</span>
+                  <button class="text-xs text-blue-500 hover:underline" on:click={clearHistory}>清空</button>
+                </div>
+                {#each histories as history}
+                  <div class="px-2 py-1.5 cursor-pointer hover:bg-blue-100/50 rounded-md" on:mousedown={() => selectSuggestion(history)}>
+                    {history}
+                  </div>
+                {/each}
+              </div>
+            {/if}
+          </div>
+        {/if}
       </div>
       
       <button class="relative bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 text-white border-0 px-8 py-4 rounded-full cursor-pointer font-semibold transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed group" disabled={isSearching} on:click={() => (page=1, search())}>
@@ -571,7 +644,7 @@ onMount(() => {
     </div>
 
     <!-- 搜索建议 - 移除动画 -->
-    {#if showSuggestions && (suggestions.length > 0 || isFetchingSuggestions)}
+    {#if showSuggestions && (suggestions.length > 0 || isFetchingSuggestions || (query.length > 0 && histories.length > 0))}
       <div class="absolute left-0 right-0 top-full mt-3 z-20 rounded-2xl overflow-hidden shadow-2xl">
         <div class="bg-white/95 backdrop-blur-xl rounded-2xl max-h-56 overflow-auto shadow-2xl border border-white/20">
           {#if isFetchingSuggestions}
@@ -579,22 +652,35 @@ onMount(() => {
               <div class="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"></div>
               加载建议...
             </div>
-          {/if}
-          {#each suggestions as s}
-            <button type="button" class="block w-full text-left bg-transparent border-none px-5 py-4 cursor-pointer text-slate-700 transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-slate-900 focus:outline-none focus:bg-gradient-to-r focus:from-blue-100 focus:to-purple-100" on:click={() => selectSuggestion(s)}>
+          {:else if suggestions.length > 0}
+            {#each suggestions as s}
+              <button type="button" class="block w-full text-left bg-transparent border-none px-5 py-4 cursor-pointer text-slate-700 transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-slate-900 focus:outline-none focus:bg-gradient-to-r focus:from-blue-100 focus:to-purple-100" on:click={() => selectSuggestion(s)}>
+                <span class="flex items-center gap-3">
+                  <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  </svg>
+                  {s}
+                </span>
+              </button>
+            {/each}
+          {:else if query.length > 0 && histories.length > 0}
+            <div class="px-5 py-3 text-sm text-slate-500">搜索历史</div>
+            {#each histories as h}
+            <button type="button" class="block w-full text-left bg-transparent border-none px-5 py-4 cursor-pointer text-slate-700 transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-slate-900 focus:outline-none focus:bg-gradient-to-r focus:from-blue-100 focus:to-purple-100" on:click={() => selectSuggestion(h)}>
               <span class="flex items-center gap-3">
                 <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                {s}
+                {h}
               </span>
             </button>
-          {/each}
+            {/each}
+          {/if}
         </div>
       </div>
     {/if}
 
-    <!-- 历史与热门 -->
+    <!-- 热门搜索 -->
     <div class="{query.length === 0 ? 'hidden' : 'flex'} md:flex flex-col gap-6 mt-8 relative z-10">
       <div class="flex items-center gap-3 flex-wrap pb-4">
         <span class="text-black mr-4 font-bold text-sm flex items-center gap-2 flex-shrink-0">
@@ -908,27 +994,43 @@ onMount(() => {
             </div>
           {/if}
           {#each results as item}
-            <article class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
-              <div class="flex flex-wrap items-center gap-3 mb-4">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {item.type === 'group' ? 'bg-blue-100 text-blue-800' : item.type === 'channel' ? 'bg-green-100 text-green-800' : item.type === 'bot' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'}">{item.type}</span>
-                <span class="text-sm text-slate-600">来源：{item.source}</span>
-                <span class="text-sm text-slate-500">时间：{new Date(item.timestamp).toLocaleString()}</span>
-                {#if item.relevance != null}
-                  <span class="text-sm text-slate-500">相关性：{item.relevance}</span>
+            <article class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
+              <div class="flex-grow">
+                <a href={item.link} target="_blank" rel="noopener noreferrer" class="text-lg font-semibold text-blue-600 hover:underline">
+                  {@html highlight(item.title, query)}
+                </a>
+                {#if item.description}
+                <div class="text-slate-600 leading-relaxed my-3 text-sm">
+                  {@html highlight(item.description, query)}
+                </div>
                 {/if}
               </div>
-              <div class="text-slate-700 leading-relaxed mb-4" aria-label="消息内容">
-                {@html highlight(item.content, query)}
-              </div>
-              <div class="flex flex-wrap gap-3">
+
+              <div class="flex items-center text-sm text-slate-500 mt-auto pt-4 border-t border-slate-100">
+                {#if item.type === 'group'}
+                  <span class="inline-flex items-center">
+                    <svg class="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.124-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.124-1.283.356-1.857m0 0a3.002 3.002 0 012.288-2.542M11 11a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    Group
+                  </span>
+                {:else if item.type === 'channel'}
+                  <span class="inline-flex items-center">
+                    <svg class="w-4 h-4 mr-1.5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.636 18.364a9 9 0 010-12.728m2.828 9.9a5 5 0 010-7.072"></path></svg>
+                    Channel
+                  </span>
+                {/if}
+                <span class="mx-2">·</span>
+                <span class="inline-flex items-center">
+                  <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21v-1a6 6 0 00-5.197-5.92M9 21v-1a6 6 0 016-6"></path></svg>
+                  {item.members_count} members
+                </span>
+
+                <div class="flex-grow"></div>
+
                 {#if item.type === 'group' || item.type === 'channel'}
-                  <button class="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors" on:click={() => openGroupModal(item)} title="查看群组统计详情">查看详情</button>
+                    <button class="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors" on:click={() => openGroupModal(item)} title="查看群组统计详情">查看详情</button>
                 {:else}
-                  <button class="text-slate-400 text-sm font-medium cursor-not-allowed" disabled title="占位">查看详情</button>
+                    <button class="text-slate-400 text-sm font-medium cursor-not-allowed" disabled title="占位">查看详情</button>
                 {/if}
-                <button class="text-slate-400 text-sm font-medium cursor-not-allowed" disabled title="占位">来源跳转</button>
-                <button class="text-slate-400 text-sm font-medium cursor-not-allowed" disabled title="占位">收藏</button>
-                <button class="text-slate-400 text-sm font-medium cursor-not-allowed" disabled title="占位">分享</button>
               </div>
             </article>
           {/each}

@@ -29,6 +29,7 @@
 		]
 	},
 	"dependencies": {
-		"@sveltejs/adapter-static": "^3.0.9"
+		"@sveltejs/adapter-static": "^3.0.9",
+		"meilisearch": "^0.52.0"
 	}
 }

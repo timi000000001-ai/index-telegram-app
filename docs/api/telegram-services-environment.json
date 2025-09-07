@@ -10,7 +10,7 @@
     },
     {
       "key": "management_service_url",
-      "value": "http://localhost:8080",
+      "value": "http://localhost:8090",
       "type": "default",
       "enabled": true
     },

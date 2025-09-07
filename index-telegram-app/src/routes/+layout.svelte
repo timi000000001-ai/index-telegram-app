@@ -48,7 +48,9 @@
       document.head.appendChild(favicon);
     }
 
+    // @ts-ignore
     if (window.Telegram && window.Telegram.WebApp) {
+      // @ts-ignore
       const tg = window.Telegram.WebApp;
       if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
         user = tg.initDataUnsafe.user;

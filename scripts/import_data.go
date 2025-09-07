@@ -18,7 +18,7 @@ import (
 // --- Configuration ---
 const (
 	pocketbaseURL      = "http://127.0.0.1:8090"
-	pocketbaseToken    = ""
+	pocketbaseToken    = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJwYmNfMzE0MjYzNTgyMyIsImV4cCI6MTg0NjExNzczMiwiaWQiOiJwaWJvcjZzb3BqaDNrN3MiLCJyZWZyZXNoYWJsZSI6ZmFsc2UsInR5cGUiOiJhdXRoIn0.2jGluOIh9pvcY7hTeTWYctVzrMIBZ2vzvh3_aGSHMGQ"
 	meilisearchHost    = "http://127.0.0.1:7700"
 	meilisearchAPIKey  = "timigogogo"
 	meilisearchIndex   = "telegram_index"
@@ -43,12 +43,13 @@ type PocketBaseRecord struct {
 
 // MeiliSearchRecord matches the structure for MeiliSearch
 type MeiliSearchRecord struct {
-	ID          int64  `json:"id"` // Mapped from chat_id
-	Title       string `json:"TITLE"`
-	Description string `json:"DESCRIPTION"`
-	Username    string `json:"USERNAME"`
-	Type        string `json:"TYPE"`
-	MembersCount int64 `json:"MEMBERS_COUNT"`
+	ID           int64  `json:"id"` // Mapped from chat_id
+	Title        string `json:"TITLE"`
+	Description  string `json:"DESCRIPTION"`
+	Username     string `json:"USERNAME"`
+	Type         string `json:"TYPE"`
+	MembersCount int64  `json:"MEMBERS_COUNT"`
+	Link         string `json:"link"`
 	// Add other fields from your MeiliSearch structure if needed
 }
 
@@ -61,12 +62,12 @@ type PocketBaseListResult struct {
 
 func main() {
 	// Clear existing data first
-	if err := clearMeiliSearchIndex(); err != nil {
-		log.Fatalf("FATAL: Could not clear MeiliSearch index: %v", err)
-	}
-	if err := clearPocketBaseCollection(); err != nil {
-		log.Fatalf("FATAL: Could not clear PocketBase collection: %v", err)
-	}
+	// if err := clearMeiliSearchIndex(); err != nil {
+	// 	log.Fatalf("FATAL: Could not clear MeiliSearch index: %v", err)
+	// }
+	// if err := clearPocketBaseCollection(); err != nil {
+	// 	log.Fatalf("FATAL: Could not clear PocketBase collection: %v", err)
+	// }
 
 	file, err := os.Open(sqlFilePath)
 	if err != nil {
@@ -202,7 +203,10 @@ func processRecord(valueMap map[string]string) {
 	if username == "" {
 		link := valueMap["link"]
 		if strings.HasPrefix(link, "https://t.me/") {
-			username = strings.TrimPrefix(link, "https://t.me/")
+			path := strings.TrimPrefix(link, "https://t.me/")
+			if parts := strings.Split(path, "/"); len(parts) > 0 {
+				username = parts[0]
+			}
 		}
 	}
 
@@ -225,6 +229,7 @@ func processRecord(valueMap map[string]string) {
 		Username:     username,
 		Type:         recordType,
 		MembersCount: members,
+		Link:         valueMap["link"],
 	}
 
 	// --- Send to Services ---

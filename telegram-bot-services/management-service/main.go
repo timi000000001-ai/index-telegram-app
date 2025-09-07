@@ -77,6 +77,18 @@ func registerAPIs(app *pocketbase.PocketBase, searchService service.SearchServic
 			return e.JSON(http.StatusOK, results)
 		})
 
+		// Register search suggestions API
+		apiGroup.GET("/search/suggestions", func(e *core.RequestEvent) error {
+			suggestions := []string{"suggestion1", "suggestion2", "suggestion3"}
+			return e.JSON(http.StatusOK, suggestions)
+		})
+
+		// Register trending searches API
+		apiGroup.GET("/search/trending", func(e *core.RequestEvent) error {
+			trending := []string{"trending1", "trending2", "trending3"}
+			return e.JSON(http.StatusOK, trending)
+		})
+
 		// Register bots API
 		apiGroup.GET("/bots", func(e *core.RequestEvent) error {
 			bots, err := botInfoService.GetAllBotInfos()

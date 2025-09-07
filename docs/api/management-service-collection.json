@@ -24,7 +24,34 @@
         },
         "description": "搜索接口，支持分页和过滤功能。"
       },
-      "response": []
+      "response": [
+        {
+          "name": "成功响应示例",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{management_service_url}}/api/search?q=Go&page=1&limit=2&filter=all",
+              "host": ["{{management_service_url}}"],
+              "path": ["api", "search"],
+              "query": [
+                {"key": "q", "value": "Go"},
+                {"key": "page", "value": "1"},
+                {"key": "limit", "value": "2"},
+                {"key": "filter", "value": "all"}
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {"key": "Content-Type", "value": "application/json"}
+          ],
+          "cookie": [],
+          "body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"hits\": [\n            {\n                \"id\": \"12345\",\n                \"type\": \"group\",\n                \"title\": \"Go 语言交流群\",\n                \"username\": \"golang_chat\",\n                \"members_count\": 5000\n            },\n            {\n                \"id\": \"67890\",\n                \"type\": \"channel\",\n                \"title\": \"Go 语言学习频道\",\n                \"username\": \"golang_learn\",\n                \"members_count\": 12000\n            }\n        ],\n        \"page\": 1,\n        \"totalPages\": 10,\n        \"totalHits\": 98,\n        \"query\": \"Go\",\n        \"processingTimeMs\": 25\n    }\n}"
+        }
+      ]
     },
     {
       "name": "获取搜索建议",
@@ -41,7 +68,29 @@
         },
         "description": "根据用户输入提供搜索建议。"
       },
-      "response": []
+      "response": [
+        {
+          "name": "成功响应示例",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{management_service_url}}/api/search/suggestions?q=go",
+              "host": ["{{management_service_url}}"],
+              "path": ["api", "search", "suggestions"],
+              "query": [{"key": "q", "value": "go"}]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {"key": "Content-Type", "value": "application/json"}
+          ],
+          "cookie": [],
+          "body": "{\n    \"status\": \"success\",\n    \"data\": [\n        \"golang\",\n        \"go web framework\",\n        \"go tutorial\"\n    ]\n}"
+        }
+      ]
     },
     {
       "name": "获取热门搜索",
@@ -55,7 +104,28 @@
         },
         "description": "获取当前的热门搜索词条。"
       },
-      "response": []
+      "response": [
+        {
+          "name": "成功响应示例",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{management_service_url}}/api/search/trending",
+              "host": ["{{management_service_url}}"],
+              "path": ["api", "search", "trending"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {"key": "Content-Type", "value": "application/json"}
+          ],
+          "cookie": [],
+          "body": "{\n    \"status\": \"success\",\n    \"data\": [\n        \"crypto\",\n        \"nft\",\n        \"web3\"\n    ]\n}"
+        }
+      ]
     },
     {
       "name": "获取用户个人信息",
