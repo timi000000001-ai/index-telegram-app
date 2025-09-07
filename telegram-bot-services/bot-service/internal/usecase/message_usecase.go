@@ -316,7 +316,7 @@ func (m *messageUsecaseImpl) buildSearchResponse(query string, page int, filter 
 			if membersCount, ok := hit["MEMBERS_COUNT"].(float64); ok && membersCount > 0 {
 				membersCountStr = fmt.Sprintf(" %d", int(membersCount))
 			}
-			response += fmt.Sprintf("%s <b>%d. %s</b> %s\n\n", i+1+((page-1)*20), typeEmoji,displayTitle,  membersCountStr)
+			response += fmt.Sprintf("<b>%d. %s</b> %s%s\n\n", i+1+((page-1)*20), displayTitle, typeEmoji, membersCountStr)
 		}
 	}
 

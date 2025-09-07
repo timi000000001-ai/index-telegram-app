@@ -36,3 +36,5 @@ telegram-bot-services/management-service/pb_data/*
 # Temporary database files
 *.db-shm
 *.db-wal
+
+sql/
