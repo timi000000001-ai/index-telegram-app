@@ -10,8 +10,17 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
+	"sync"
+	"time"
 
 	"gopkg.in/telebot.v4"
+)
+
+var (
+	tokenMutex     sync.Mutex
+	tokenIndex     = 0
+	tokenBlacklist = make(map[string]time.Time)
 )
 
 func main() {
@@ -29,14 +38,18 @@ func main() {
 	})
 
 	searchRepo := repository.NewSearchRepository(cfg.Search.MeilisearchURL, cfg.Search.MeilisearchKey)
-	searchUsecase := usecase.NewSearchUsecase(searchRepo)
 
-	messageUsecase := usecase.NewMessageUsecase(storageRepo, searchUsecase)
+	messageUsecase := usecase.NewMessageUsecase(cfg, storageRepo, searchRepo)
 	botHandler := handler.NewBotHandler(messageUsecase, cfg)
 
 	// Initialize bots
 	if err := initializeBots(botHandler, cfg); err != nil {
 		log.Fatalf("Failed to initialize bots: %v", err)
+	}
+
+	// Initialize review bot
+	if err := initializeReviewBot(botHandler, cfg); err != nil {
+		log.Printf("Failed to initialize review bot: %v", err)
 	}
 
 	// Start server
@@ -60,12 +73,50 @@ func initializeBots(botHandler handler.BotHandler, cfg *config.Config) error {
 		}, cfg)
 		if err != nil {
 			log.Printf("Failed to initialize bot with token %s: %v", botConfig.Token, err)
+			if strings.Contains(err.Error(), "retry after") {
+				tokenMutex.Lock()
+				tokenBlacklist[botConfig.Token] = time.Now().Add(time.Duration(cfg.Bot.TokenRotationDuration) * time.Second)
+				tokenMutex.Unlock()
+			}
 			continue
 		}
 		botHandler.RegisterHandlers(bot)
 	}
 
 	return nil
+}
+
+func initializeReviewBot(botHandler handler.BotHandler, cfg *config.Config) error {
+	if cfg.Bot.ReviewBotToken == "" {
+		return fmt.Errorf("review bot token is not configured")
+	}
+
+	bot, err := botHandler.InitBot(handler.BotConfig{
+		Token: cfg.Bot.ReviewBotToken,
+	}, cfg)
+	if err != nil {
+		return fmt.Errorf("failed to initialize review bot: %w", err)
+	}
+
+	botHandler.RegisterReviewHandlers(bot)
+	log.Println("Review bot initialized successfully")
+	return nil
+}
+
+func getNextToken(cfg *config.Config) string {
+	tokenMutex.Lock()
+	defer tokenMutex.Unlock()
+
+	for i := 0; i < len(cfg.Bot.BotTokens); i++ {
+		token := cfg.Bot.BotTokens[tokenIndex]
+		tokenIndex = (tokenIndex + 1) % len(cfg.Bot.BotTokens)
+
+		if expiry, found := tokenBlacklist[token]; !found || time.Now().After(expiry) {
+			return token
+		}
+	}
+
+	return "" // No available token
 }
 
 func startServer(botHandler handler.BotHandler) {

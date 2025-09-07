@@ -6,12 +6,15 @@ toolchain go1.24.5
 
 require (
 	github.com/go-resty/resty/v2 v2.16.5
+	github.com/meilisearch/meilisearch-go v0.33.3
 	github.com/stretchr/testify v1.11.1
 	gopkg.in/telebot.v4 v4.0.0-beta.5
 )
 
 require (
+	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	golang.org/x/net v0.33.0 // indirect

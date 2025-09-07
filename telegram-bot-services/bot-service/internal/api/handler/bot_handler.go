@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"html"
 	"io"
-	"log/slog"
+	"log"
 	"net/http"
 	"strings"
 	"sync"
@@ -43,22 +43,30 @@ type BotHandler interface {
 	GetBot(token string) (*telebot.Bot, bool)
 	ProcessUpdate(token string, update *telebot.Update) error
 	RegisterHandlers(bot *telebot.Bot)
+	RegisterReviewHandlers(bot *telebot.Bot)
+	GetNextBot() (*telebot.Bot, error)
 }
 
 // botHandlerImpl 实现 BotHandler 接口
 type botHandlerImpl struct {
-	bots           map[string]*telebot.Bot
-	mutex          sync.RWMutex
-	messageUsecase usecase.MessageUsecase
-	cfg            *config.Config
+	bots                map[string]*telebot.Bot
+	mutex               sync.RWMutex
+	messageUsecase      usecase.MessageUsecase
+	cfg                 *config.Config
+	tokenMutex          sync.Mutex
+	tokenIndex          int
+	tokenBlacklist      map[string]time.Time
+	tokenRotationDuration time.Duration
 }
 
 // NewBotHandler 创建新的机器人处理器实例
 func NewBotHandler(messageUsecase usecase.MessageUsecase, cfg *config.Config) BotHandler {
 	return &botHandlerImpl{
-		bots:           make(map[string]*telebot.Bot),
-		messageUsecase: messageUsecase,
-		cfg:            cfg,
+		bots:                  make(map[string]*telebot.Bot),
+		messageUsecase:        messageUsecase,
+		cfg:                   cfg,
+		tokenBlacklist:        make(map[string]time.Time),
+		tokenRotationDuration: time.Duration(cfg.Bot.TokenRotationDuration) * time.Second,
 	}
 }
 
@@ -88,7 +96,7 @@ func (b *botHandlerImpl) InitBot(botConfig BotConfig, cfg *config.Config) (*tele
 	return bot, nil
 }
 
-// GetBot 获取机器人实例
+// GetBot 检索机器人实例
 func (b *botHandlerImpl) GetBot(token string) (*telebot.Bot, bool) {
 	b.mutex.RLock()
 	defer b.mutex.RUnlock()
@@ -106,34 +114,53 @@ func (b *botHandlerImpl) ProcessUpdate(token string, update *telebot.Update) err
 	return nil
 }
 
+func (b *botHandlerImpl) GetNextBot() (*telebot.Bot, error) {
+	b.tokenMutex.Lock()
+	defer b.tokenMutex.Unlock()
+
+	for i := 0; i < len(b.cfg.Bot.BotTokens); i++ {
+		b.tokenIndex = (b.tokenIndex + 1) % len(b.cfg.Bot.BotTokens)
+		nextToken := b.cfg.Bot.BotTokens[b.tokenIndex]
+
+		if expiry, blacklisted := b.tokenBlacklist[nextToken]; !blacklisted || time.Now().After(expiry) {
+			bot, exists := b.GetBot(nextToken)
+			if exists {
+				return bot, nil
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("no available bots at the moment")
+}
+
 // getChatMemberCount 使用对 Telegram Bot API 的直接 HTTP 调用来检索聊天中的成员数。
 func getChatMemberCount(token string, chatID int64) (int, error) {
 	apiURL := fmt.Sprintf("https://api.telegram.org/bot%s/getChatMemberCount?chat_id=%d", token, chatID)
 	resp, err := http.Get(apiURL)
 	if err != nil {
-		slog.Error("获取聊天成员数量失败", "error", err)
+		log.Printf("获取聊天成员数量失败: %v", err)
 		return 0, fmt.Errorf("failed to get chat member count: %w", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		slog.Error("读取响应体失败", "error", err)
+		log.Printf("读取响应体失败: %v", err)
 		return 0, fmt.Errorf("failed to read response body: %w", err)
 	}
 
 	var chatMemberCountResp GetChatMemberCountResponse
 	if err := json.Unmarshal(body, &chatMemberCountResp); err != nil {
-		slog.Error("解析 JSON 响应失败", "error", err)
+		log.Printf("解析 JSON 响应失败: %v", err)
 		return 0, fmt.Errorf("failed to unmarshal json response: %w", err)
 	}
 
 	if !chatMemberCountResp.Ok {
-		slog.Error("API 响应不成功", "body", string(body))
+		log.Printf("API 响应不成功: %s", string(body))
 		return 0, fmt.Errorf("telegram API error: %s", string(body))
 	}
 	// 打印日志
-	slog.Info("获取聊天成员数量成功", "chat_id", chatID, "member_count", chatMemberCountResp.Result)
+	log.Printf("获取聊天成员数量成功. chat_id: %d, member_count: %d", chatID, chatMemberCountResp.Result)
 	return chatMemberCountResp.Result, nil
 }
 
@@ -166,7 +193,23 @@ func (b *botHandlerImpl) RegisterHandlers(bot *telebot.Bot) {
 				chat, err := bot.ChatByUsername("@" + username)
 				if err != nil {
 					fmt.Printf("Error getting chat: %v\n", err)
-					return err
+					if strings.Contains(err.Error(), "retry after") {
+						b.tokenMutex.Lock()
+						b.tokenBlacklist[bot.Token] = time.Now().Add(b.tokenRotationDuration)
+						b.tokenMutex.Unlock()
+
+						nextBot, nextBotErr := b.GetNextBot()
+						if nextBotErr != nil {
+							return nextBotErr
+						}
+
+						chat, err = nextBot.ChatByUsername("@" + username)
+						if err != nil {
+							return err
+						}
+					} else {
+						return err
+					}
 				}
 				fmt.Printf("Chat retrieved: %+v\n", chat)
 				// 获取完整聊天信息
@@ -182,7 +225,7 @@ func (b *botHandlerImpl) RegisterHandlers(bot *telebot.Bot) {
 				}
 				memberCount, err := getChatMemberCount(bot.Token, chat.ID)
 				if err != nil {
-					slog.Error("获取成员数量失败", "error", err, "chat", chat.Username)
+					log.Printf("获取成员数量失败: %v, chat: %s", err, chat.Username)
 
 					// 发送带有按钮的错误消息
 					message := "获取用户数量失败，请将机器人拉入群组后重试。"
@@ -429,4 +472,8 @@ Visit https://your-repo.com for details.`
 			ParseMode: telebot.ModeHTML,
 		})
 	})
+}
+
+func (b *botHandlerImpl) RegisterReviewHandlers(bot *telebot.Bot) {
+	bot.Handle(telebot.OnCallback, b.messageUsecase.HandleReviewCallback)
 }

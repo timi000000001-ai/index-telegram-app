@@ -27,8 +27,8 @@ telegram-bot-services/collection-service/collection-service
 telegram-bot-services/management-service/management-service
 
 # Data directories
-meilisearch/data/
-telegram-bot-services/management-service/pb_data/
+meilisearch/data/*
+telegram-bot-services/management-service/pb_data/*
 
 # Certificates and keys
 *.pem

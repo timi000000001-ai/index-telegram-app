@@ -30,5 +30,15 @@ sleep 2
 
 echo ""
 echo "--- 服务已在后台启动 ---"
-echo "你可以使用 'tail -f /root/新建文件夹/index-telegram-app/telegram-bot-services/management-service/management.log' 查看 management-service 日志"
-echo "你可以使用 'tail -f /root/新建文件夹/index-telegram-app/telegram-bot-services/bot-service/bot.log' 查看 bot-service 日志"
+
+# 检查是否提供了 '--logs' 参数
+if [ "$1" == "--logs" ]; then
+    echo "--- 正在输出日志 ---"
+    trap 'kill $(jobs -p)' EXIT
+    tail -f "$PROJECT_ROOT/telegram-bot-services/management-service/management.log" &
+    tail -f "$PROJECT_ROOT/telegram-bot-services/bot-service/bot.log" &
+    wait
+else
+    echo "你可以使用 'tail -f /root/新建文件夹/index-telegram-app/telegram-bot-services/management-service/management.log' 查看 management-service 日志"
+    echo "你可以使用 'tail -f /root/新建文件夹/index-telegram-app/telegram-bot-services/bot-service/bot.log' 查看 bot-service 日志"
+fi  
