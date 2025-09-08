@@ -3,7 +3,7 @@ import { json } from '@sveltejs/kit';
 
 const client = new MeiliSearch({
   host: 'http://localhost:7700',
-  apiKey: 'masterKey',
+  apiKey: 'timigogogo',
 });
 
 export async function GET({ url }) {
@@ -17,7 +17,8 @@ export async function GET({ url }) {
     const searchResult = await client.index('suggestions').search(query, {
       limit: 10,
     });
-    return json(searchResult.hits);
+    const suggestions = searchResult.hits.map(hit => hit.query);
+    return json(suggestions);
   } catch (error) {
     console.error('Meilisearch error:', error);
     return json({ error: 'Failed to fetch suggestions' }, { status: 500 });
