@@ -302,12 +302,7 @@ const debouncedFetchSuggestions = debounce(fetchSuggestions, 300);
 function onQueryInput(e) {
   const target = /** @type {HTMLInputElement} */ (e.target);
   query = target.value;
-  if (query.length > 0) {
-    showSuggestions = true;
-    debouncedFetchSuggestions(query);
-  } else {
-    showSuggestions = false;
-  }
+  debouncedFetchSuggestions(query);
 }
 
 /**
@@ -556,19 +551,19 @@ onMount(() => {
     
     <!-- 数据库图标已移除 -->
     
-    <div class="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center relative z-10">
+    <div class="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center relative {showSuggestions ? 'z-30' : 'z-10'}">
       <div class="relative flex-1 group">
         <!-- 搜索框光晕效果 - 移除动画 -->
         <div class="absolute inset-0 bg-gradient-to-r from-blue-400/30 via-purple-400/30 to-pink-400/30 rounded-full blur-xl opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-300"></div>
         
         <!-- 主搜索框 - 简化动画 -->
         <input
-          class="w-full px-6 py-4 text-base border-2 border-blue-200/50 rounded-full outline-none transition-all duration-300 bg-white/70 backdrop-blur-md text-slate-700 placeholder-slate-400 relative z-10 focus:border-blue-400/80 focus:bg-white/90 focus:shadow-lg hover:border-blue-300/70 hover:bg-white/80"
+          class="w-full px-6 py-4 text-base border-2 border-blue-200/50 rounded-full outline-none transition-all duration-300 bg-white/70 backdrop-blur-md text-slate-700 placeholder-slate-400 focus:border-blue-400/80 focus:bg-white/90 focus:shadow-lg hover:border-blue-300/70 hover:bg-white/80"
           placeholder="请输入搜索关键字（支持多个关键字，以空格分隔）"
           bind:value={query}
           on:input={onQueryInput}
-          on:focus={() => query && (showSuggestions = true)}
-          on:blur={() => setTimeout(() => (showSuggestions = false), 200)}
+          on:focus={() => query.length > 1 && suggestions.length > 0 && (showSuggestions = true)}
+          on:blur={() => setTimeout(() => (showSuggestions = false), 200)} 
           on:keydown={(e) => {
             if (e.key === 'Enter') {
               showSuggestions = false;
@@ -587,7 +582,7 @@ onMount(() => {
         
         <!-- 搜索建议下拉框 -->
         {#if showSuggestions && (suggestions.length > 0 || isFetchingSuggestions || histories.length > 0)}
-          <div class="absolute top-full mt-2 w-full bg-white/90 backdrop-blur-md border border-blue-200/50 rounded-2xl shadow-lg z-20 overflow-hidden">
+          <div class="absolute top-full mt-2 w-full bg-white/90 backdrop-blur-md border border-blue-200/50 rounded-2xl shadow-lg z-50 overflow-hidden">
             <!-- 加载中 -->
             {#if isFetchingSuggestions}
               <div class="p-4 text-center text-slate-500">正在加载建议...</div>
@@ -595,8 +590,8 @@ onMount(() => {
 
             <!-- 搜索建议 -->
             {#each suggestions as suggestion}
-              <div class="px-4 py-2 cursor-pointer hover:bg-blue-100/50" on:mousedown={() => selectSuggestion(suggestion.query)}>
-                {@html suggestion.query}
+              <div class="px-4 py-2 cursor-pointer hover:bg-blue-100/50" on:mousedown={() => selectSuggestion(suggestion)}>
+                {@html suggestion}
               </div>
             {/each}
 
@@ -643,42 +638,7 @@ onMount(() => {
       </button>
     </div>
 
-    <!-- 搜索建议 - 移除动画 -->
-    {#if showSuggestions && (suggestions.length > 0 || isFetchingSuggestions || (query.length > 0 && histories.length > 0))}
-      <div class="absolute left-0 right-0 top-full mt-3 z-20 rounded-2xl overflow-hidden shadow-2xl">
-        <div class="bg-white/95 backdrop-blur-xl rounded-2xl max-h-56 overflow-auto shadow-2xl border border-white/20">
-          {#if isFetchingSuggestions}
-            <div class="block w-full text-left bg-transparent border-none px-5 py-4 cursor-default text-slate-500 flex items-center gap-3">
-              <div class="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"></div>
-              加载建议...
-            </div>
-          {:else if suggestions.length > 0}
-            {#each suggestions as s}
-              <button type="button" class="block w-full text-left bg-transparent border-none px-5 py-4 cursor-pointer text-slate-700 transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-slate-900 focus:outline-none focus:bg-gradient-to-r focus:from-blue-100 focus:to-purple-100" on:click={() => selectSuggestion(s)}>
-                <span class="flex items-center gap-3">
-                  <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                  </svg>
-                  {s}
-                </span>
-              </button>
-            {/each}
-          {:else if query.length > 0 && histories.length > 0}
-            <div class="px-5 py-3 text-sm text-slate-500">搜索历史</div>
-            {#each histories as h}
-            <button type="button" class="block w-full text-left bg-transparent border-none px-5 py-4 cursor-pointer text-slate-700 transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-slate-900 focus:outline-none focus:bg-gradient-to-r focus:from-blue-100 focus:to-purple-100" on:click={() => selectSuggestion(h)}>
-              <span class="flex items-center gap-3">
-                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                {h}
-              </span>
-            </button>
-            {/each}
-          {/if}
-        </div>
-      </div>
-    {/if}
+
 
     <!-- 热门搜索 -->
     <div class="{query.length === 0 ? 'hidden' : 'flex'} md:flex flex-col gap-6 mt-8 relative z-10">
@@ -1027,7 +987,7 @@ onMount(() => {
                 <div class="flex-grow"></div>
 
                 {#if item.type === 'group' || item.type === 'channel'}
-                    <button class="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors" on:click={() => openGroupModal(item)} title="查看群组统计详情">查看详情</button>
+                    <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-all duration-300 shadow-md hover:shadow-lg" on:click={() => openGroupModal(item)} title="查看群组统计详情">查看详情</button>
                 {:else}
                     <button class="text-slate-400 text-sm font-medium cursor-not-allowed" disabled title="占位">查看详情</button>
                 {/if}

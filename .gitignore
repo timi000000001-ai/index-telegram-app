@@ -38,3 +38,5 @@ telegram-bot-services/management-service/pb_data/*
 *.db-wal
 
 sql/
+nohup.out
+nohup.out

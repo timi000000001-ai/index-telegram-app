@@ -52,11 +52,6 @@ export default defineConfig({
 			// 允许为项目根目录以上的文件提供服务
 			strict: false
 		},
-		proxy: {
-			'/api': {
-				target: 'http://127.0.0.1:8090',
-				changeOrigin: true
-			}
-		}
+
 	}
 });
