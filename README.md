@@ -113,6 +113,7 @@ If you find this project helpful, please consider sponsoring us.
 <img width="512" height="530" alt="image" src="https://github.com/user-attachments/assets/08a5cf87-e174-4bf5-ae2d-1ed676c7b90e" />
 
 Contact on Telegram: https://t.me/simi001001 https://t.me/SoSo00000000001
+<img width="939" height="1280" alt="image" src="https://github.com/user-attachments/assets/d7771644-519c-4caf-a669-db026fe25b72" />
 
 ## License
 
